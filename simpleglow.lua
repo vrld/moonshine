@@ -33,7 +33,7 @@ local function build_blur_shader(sigma)
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{ vec4 c = vec4(0.0f);
 	]]}
-	local blur_line = "c += %sf * Texel(texture, tc + (%d.0f) * direction);"
+	local blur_line = "c += vec4(%f) * Texel(texture, tc + vec2(%f) * direction);"
 
 	for i = -support,support do
 		local coeff = math.exp(-.5 * i*i * one_by_sigma_sq)
@@ -41,7 +41,7 @@ local function build_blur_shader(sigma)
 		code[#code+1] = blur_line:format(coeff, i)
 	end
 
-	code[#code+1] = ("return c * %sf * color;}"):format(1 / norm)
+	code[#code+1] = ("return c * vec4(%f) * color;}"):format(1 / norm)
 
 	return love.graphics.newShader(table.concat(code))
 end

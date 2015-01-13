@@ -28,12 +28,20 @@ description = "Film grain overlay",
 
 new = function(self)
 	self.canvas = love.graphics.newCanvas()
+	self.noisetex = love.image.newImageData(100,100)
+	self.noisetex:mapPixel(function()
+		local l = love.math.random() * 255
+		return l,l,l,l
+	end)
+	self.noisetex = love.graphics.newImage(self.noisetex)
 	self.shader = love.graphics.newShader[[
-		extern number opacity = .3f;
-		extern number noise = .0f;
+		extern number opacity;
+		extern number noise;
+		extern Image noisetex;
+		extern vec2 tex_ratio;
 		float rand(vec2 co)
 		{
-			return fract(sin(mod(dot(co.xy,vec2(12.9898f,78.233f)), 3.14159f)) * 43758.5453f);
+			return Texel(noisetex, mod(co * tex_ratio, vec2(1.0))).r;
 		}
 
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
@@ -41,6 +49,8 @@ new = function(self)
 			return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), opacity);
 		}
 	]]
+	self.shader:send("noisetex", self.noisetex)
+	self.shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(), love.graphics.getHeight() / self.noisetex:getHeight()})
 	self.shader:send("opacity",.3)
 	self.shader:send("noise",0)
 end,
