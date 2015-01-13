@@ -29,8 +29,8 @@ description = "Desaturation/tint effect",
 new = function(self)
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern vec4 tint = vec4(1.0f);
-		extern number strength = 0.5f;
+		extern vec4 tint;
+		extern number strength;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			color = Texel(texture, tc);
@@ -38,6 +38,8 @@ new = function(self)
 			return mix(color, tint * luma, strength);
 		}
 	]]
+	self.shader:send("tint",{1.0,1.0,1.0})
+	self.shader:send("strength",0.5)
 end,
 
 draw = function(self, func)

@@ -30,19 +30,20 @@ new = function(self)
 	self.radius_h, self.radius_v = 3, 3
 	self.canvas_h, self.canvas_v = love.graphics.newCanvas(), love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern vec2 direction = vec2(1.0f, 0.0f);
+		extern vec2 direction;
 		extern number radius;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			vec4 c = vec4(0.0f);
 
-			for (float i = -radius; i <= radius; i += 1)
+			for (float i = -radius; i <= radius; i += 1.0f)
 			{
 				c += Texel(texture, tc + i * direction);
 			}
 			return c / (2.0f * radius + 1.0f) * color;
 		}
 	]]
+	self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
 end,
 
 draw = function(self, func)

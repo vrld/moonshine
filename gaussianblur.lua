@@ -28,9 +28,11 @@ local function build_shader(sigma)
 	local one_by_sigma_sq = 1 / (sigma * sigma)
 	local norm = 0
 
-	local code = {[[extern vec2 direction = vec2(1.0f, 0.0f);
+	local code = {[[
+		extern vec2 direction;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-		{ vec4 c = vec4(0.0f);]]}
+		{ vec4 c = vec4(0.0f);
+	]]}
 	local blur_line = "c += %sf * Texel(texture, tc + (%d.0f) * direction);"
 
 	for i = -support,support do
@@ -51,6 +53,7 @@ description = "Fast Gaussian blur shader",
 new = function(self)
 	self.canvas_h, self.canvas_v = love.graphics.newCanvas(), love.graphics.newCanvas()
 	self.shader = build_shader(1)
+	self.shader:send("direction",{1.0,0.0})
 end,
 
 draw = function(self, func)

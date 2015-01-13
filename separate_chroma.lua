@@ -30,7 +30,7 @@ new = function(self)
 	self.angle, self.radius = 0, 0
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern vec2 direction = vec2(0.0f);
+		extern vec2 direction;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			return color * vec4(
@@ -40,6 +40,7 @@ new = function(self)
 				1.0);
 		}
 	]]
+	self.shader:send("direction",{0,0})
 end,
 
 draw = function(self, func)

@@ -29,7 +29,7 @@ description = "Posterize effect to quantize color bands",
 new = function(self)
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern number num_bands = 1.0f;
+		extern number num_bands;
 		vec3 rgb2hsv(vec3 c)
 		{
 			vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -55,6 +55,7 @@ new = function(self)
 			return vec4(hsv2rgb(hsv), color.a);
 		}
 	]]
+	self.shader:send("num_band",1)
 end,
 
 draw = function(self, func)

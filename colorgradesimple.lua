@@ -29,12 +29,13 @@ description = "Simple linear color grading of red, green and blue channel",
 new = function(self)
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern vec3 grade = vec3(1.0f, 1.0f, 1.0f);
+		extern vec3 grade;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			return vec4(grade, 1.0f) * Texel(texture, tc) * color;
 		}
 	]]
+	self.shader:send("grade",{1.0,1.0,1.0})
 end,
 
 draw = function(self, func)
