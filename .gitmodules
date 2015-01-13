@@ -1,0 +1,7 @@
+[submodule "quickie"]
+	path = quickie
+	url = https://github.com/vrld/Quickie.git
+[submodule "shine"]
+	path = shine
+	url = https://github.com/vrld/shine.git
+	branch = master
