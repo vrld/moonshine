@@ -18,6 +18,7 @@ function love.load()
 	current = 'none'
 	effects = {none = function(f) f() end}
 	for _,v in ipairs(effect_names) do
+		print(v)
 		effects[v] = shine[v]()
 	end
 
@@ -45,15 +46,22 @@ end
 
 local show_menu = false
 local options
+local function setval(effect, name)
+	return function(v) effects[effect][name] = v end
+end
+local function setrgb(effect, name)
+	return function(v)
+		local r = options[effect].red.value
+		local g = options[effect].green.value
+		local b = options[effect].blue.value
+		effects[effect][name] = {r,g,b}
+	end
+end
 options = {
 	none = {opts = {}},
 	boxblur = { opts = {"radius", "radius_h", "radius_v"},
-		radius_v = {value = 3, min = 1, max = 11, onHit = function(v)
-			effects.boxblur.radius_v = v
-		end},
-		radius_h = {value = 3, min = 1, max = 11, onHit = function(v)
-			effects.boxblur.radius_h = v
-		end},
+		radius_v = {value = 3, min = 1, max = 11, onHit = setval("boxblur", "radius_v")},
+		radius_h = {value = 3, min = 1, max = 11, onHit = setval("boxblur", "radius_h")},
 		radius = {value = 3, min = 1, max = 11, onHit = function(v)
 			effects.boxblur.radius = v
 			options.boxblur.radius_v.value = v
@@ -64,110 +72,59 @@ options = {
 		end
 	},
 	colorgradesimple = { opts = {"red", "green", "blue"},
-		red = {value = 1, min = 0, max = 3, onHit = function(v)
-			local r = options.colorgradesimple.red.value
-			local g = options.colorgradesimple.green.value
-			local b = options.colorgradesimple.blue.value
-			effects.colorgradesimple.grade = {r,g,b}
-		end},
-		green = {value = 1, min = 0, max = 3, onHit = function(v)
-			local r = options.colorgradesimple.red.value
-			local g = options.colorgradesimple.green.value
-			local b = options.colorgradesimple.blue.value
-			effects.colorgradesimple.grade = {r,g,b}
-		end},
-		blue = {value = 1, min = 0, max = 3, onHit = function(v)
-			local r = options.colorgradesimple.red.value
-			local g = options.colorgradesimple.green.value
-			local b = options.colorgradesimple.blue.value
-			effects.colorgradesimple.grade = {r,g,b}
-		end},
+		red = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
+		green = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
+		red = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
 		dump = function(o)
 			return ("grade = {%.03f, %.03f, %.03f}"):format(o.red.value, o.green.value, o.blue.value)
 		end
 	},
 	desaturate = { opts = {"strength", "red", "green", "blue"},
-		strength = {value = 0.5, min = 0, max = 1, onHit = function(v)
-			effects.desaturate.strength = v
-		end},
-		red = {value = 255, min = 0, max = 255, onHit = function(v)
-			local r = options.desaturate.red.value
-			local g = options.desaturate.green.value
-			local b = options.desaturate.blue.value
-			effects.desaturate.tint = {r,g,b}
-		end},
-		green = {value = 255, min = 0, max = 255, onHit = function(v)
-			local r = options.desaturate.red.value
-			local g = options.desaturate.green.value
-			local b = options.desaturate.blue.value
-			effects.desaturate.tint = {r,g,b}
-		end},
-		blue = {value = 255, min = 0, max = 255, onHit = function(v)
-			local r = options.desaturate.red.value
-			local g = options.desaturate.green.value
-			local b = options.desaturate.blue.value
-			effects.desaturate.tint = {r,g,b}
-		end},
+		strength = {value = 0.5, min = 0, max = 1, onHit = setval("desaturate", "strength")},
+		red = {value = 255, min = 0, max = 255, onHit = setrgb("desaturate", "tint")},
+		green = {value = 255, min = 0, max = 255, onHit = setrgb("desaturate", "tint")},
+		blue = {value = 255, min = 0, max = 255, onHit = setrgb("desaturate", "tint")},
 		dump = function(o)
 			return ("strength = %.03f, tint = {%d,%d,%d}"):format(o.strength.value, o.red.value, o.green.value, o.blue.value)
 		end
 	},
-	filmgrain = {opts = {"opacity"},
-		opacity = {value = 0.5, min = 0, max = 1, onHit = function(v)
-			effects.filmgrain.opacity = v
-		end},
+	filmgrain = {opts = {"opacity", "grainsize"},
+		opacity = {value = 0.5, min = 0, max = 1, onHit = setval("filmgrain", "opacity")},
+		grainsize = {value = 1, min = 1, max = 20, onHit = setval("filmgrain", "grainsize")},
 		dump = function(o)
-			return ("opacity = %.03f"):format(o.opacity.value)
+			return ("opacity = %.03f, grainsize = %.3f"):format(o.opacity.value, o.grainsize.value)
 		end
 	},
 	gaussianblur = {opts = {"sigma"},
-		sigma = {value = 0.5, min = 0, max = 5, onHit = function(v)
-			effects.gaussianblur.sigma = v
-		end},
+		sigma = {value = 0.5, min = 0, max = 5, onHit = setval("gaussianblur", "sigma")},
 		dump = function(o)
 			return ("sigma = %.03f - Warning: recompiles shader on option change"):format(o.sigma.value)
 		end
 	},
 	posterize = {opts = {"num_bands"},
-		num_bands = {value = 1, min = 1, max = 30, onHit = function(v)
-			effects.posterize.num_bands = v
-		end},
+		num_bands = {value = 1, min = 1, max = 30, onHit = setval("posterize", "num_bands")},
 		dump = function(o)
 			return ("num_bands = %d"):format(o.num_bands.value)
 		end
 	},
 	separate_chroma = {opts = {"angle", "radius"},
-		angle = {value = 0, min = 0, max = 2*math.pi, onHit = function(v)
-			effects.separate_chroma.angle = v
-		end},
-		radius = {value = 1, min = 0, max = 30, onHit = function(v)
-			effects.separate_chroma.radius = v
-		end},
+		angle = {value = 0, min = 0, max = 2*math.pi, onHit = setval("separate_chroma", "angle")},
+		radius = {value = 1, min = 0, max = 30, onHit = setval("separate_chroma", "radius")},
 		dump = function(o)
 			return ("angle = %.03f, radius = %d"):format(o.angle.value, o.radius.value)
 		end
 	},
 	simpleglow = {opts = {"sigma", "min_luma"},
-		sigma = {value = 5, min = 0, max = 10, onHit = function(v)
-			effects.simpleglow.sigma = v
-		end},
-		min_luma = {value = 0.7, min = 0, max = 1, onHit = function(v)
-			effects.simpleglow.min_luma = v
-		end},
+		sigma = {value = 5, min = 0, max = 10, onHit = setval("simpleglow", "sigma")},
+		min_luma = {value = 0.7, min = 0, max = 1, onHit = setval("simpleglow", "min_luma")},
 		dump = function(o)
 			return ("sigma = %.03f, min_luma = %.03f - Warning: recompiles shader on changing sigma"):format(o.sigma.value, o.min_luma.value)
 		end
 	},
 	vignette = {opts = {"radius", "softness", "opacity"},
-		radius = {value = 1, min = 0, max = 1.5, onHit = function(v)
-			effects.vignette.radius = v
-		end},
-		softness = {value = 0.5, min = 0, max = 1, onHit = function(v)
-			effects.vignette.softness = v
-		end},
-		opacity = {value = 0.5, min = 0, max = 1, onHit = function(v)
-			effects.vignette.opacity = v
-		end},
+		radius = {value = 1, min = 0, max = 1.5, onHit = setval("vignette", "radius")},
+		softness = {value = 0.5, min = 0, max = 1, onHit = setval("vignette", "softness")},
+		opacity = {value = 0.5, min = 0, max = 1, onHit = setval("vignette", "opacity")},
 		dump = function(o)
 			return ("radius = %.03f, softness = %.03f, opacity = %.03f"):format(o.radius.value, o.softness.value, o.opacity.value)
 		end
