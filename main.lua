@@ -115,8 +115,8 @@ options = {
 		end
 	},
 	glowsimple = {opts = {"sigma", "min_luma"},
-		sigma = {value = 5, min = 0, max = 10, onHit = setval("simpleglow", "sigma")},
-		min_luma = {value = 0.7, min = 0, max = 1, onHit = setval("simpleglow", "min_luma")},
+		sigma = {value = 5, min = 0, max = 10, onHit = setval("glowsimple", "sigma")},
+		min_luma = {value = 0.7, min = 0, max = 1, onHit = setval("glowsimple", "min_luma")},
 		dump = function(o)
 			return ("sigma = %.03f, min_luma = %.03f - Warning: recompiles shader on changing sigma"):format(o.sigma.value, o.min_luma.value)
 		end
