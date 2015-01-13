@@ -38,7 +38,7 @@ new = function(self)
 			return mix(color, tint * luma, strength);
 		}
 	]]
-	self.shader:send("tint",{1.0,1.0,1.0})
+	self.shader:send("tint",{1.0,1.0,1.0,1.0})
 	self.shader:send("strength",0.5)
 end,
 
