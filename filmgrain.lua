@@ -36,12 +36,13 @@ new = function(self)
 	self.noisetex = love.graphics.newImage(self.noisetex)
 	self.shader = love.graphics.newShader[[
 		extern number opacity;
+		extern number grainsize;
 		extern number noise;
 		extern Image noisetex;
 		extern vec2 tex_ratio;
 		float rand(vec2 co)
 		{
-			return Texel(noisetex, mod(co * tex_ratio, vec2(1.0))).r;
+			return Texel(noisetex, mod(co * tex_ratio / vec2(grainsize), vec2(1.0))).r;
 		}
 
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
@@ -49,10 +50,12 @@ new = function(self)
 			return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), opacity);
 		}
 	]]
+	self.shader:send("opacity",.3)
+	self.shader:send("grainsize",1)
+
+	self.shader:send("noise",0)
 	self.shader:send("noisetex", self.noisetex)
 	self.shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(), love.graphics.getHeight() / self.noisetex:getHeight()})
-	self.shader:send("opacity",.3)
-	self.shader:send("noise",0)
 end,
 
 draw = function(self, func)
@@ -61,7 +64,7 @@ draw = function(self, func)
 end,
 
 set = function(self, key, value)
-	if key == "opacity" then
+	if key == "opacity" or key == "grainsize" then
 		self.shader:send(key, math.max(0, tonumber(value) or 0))
 	else
 		error("Unknown property: " .. tostring(key))
