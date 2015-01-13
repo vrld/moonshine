@@ -41,6 +41,8 @@ new = function(self)
 			return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), opacity);
 		}
 	]]
+	self.shader:send("opacity",.3)
+	self.shader:send("noise",0)
 end,
 
 draw = function(self, func)
