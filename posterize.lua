@@ -58,7 +58,7 @@ new = function(self)
 			return vec4(hsv2rgb(hsv), color.a);
 		}
 	]]
-	self.shader:send("num_band",1)
+	self.shader:send("num_bands",1)
 end,
 
 draw = function(self, func)
