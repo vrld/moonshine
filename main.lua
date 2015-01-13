@@ -7,9 +7,9 @@ local effect_names = {
 	"desaturate",
 	"filmgrain",
 	"gaussianblur",
+	"glowsimple",
 	"posterize",
 	"separate_chroma",
-	"simpleglow",
 	"vignette"
 }
 local current, effects
@@ -74,7 +74,7 @@ options = {
 	colorgradesimple = { opts = {"red", "green", "blue"},
 		red = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
 		green = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
-		red = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
+		blue = {value = 1, min = 0, max = 3, onHit = setrgb("colorgradesimple", "grade")},
 		dump = function(o)
 			return ("grade = {%.03f, %.03f, %.03f}"):format(o.red.value, o.green.value, o.blue.value)
 		end
@@ -114,7 +114,7 @@ options = {
 			return ("angle = %.03f, radius = %d"):format(o.angle.value, o.radius.value)
 		end
 	},
-	simpleglow = {opts = {"sigma", "min_luma"},
+	glowsimple = {opts = {"sigma", "min_luma"},
 		sigma = {value = 5, min = 0, max = 10, onHit = setval("simpleglow", "sigma")},
 		min_luma = {value = 0.7, min = 0, max = 1, onHit = setval("simpleglow", "min_luma")},
 		dump = function(o)
