@@ -51,10 +51,7 @@ new = function(self)
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			color = Texel(texture, tc);
-			vec3 hsv = rgb2hsv(color.rgb) * num_bands;
-			hsv.r = float(int(hsv.r + 0.5)) / num_bands;
-			hsv.g = float(int(hsv.g + 0.5)) / num_bands;
-			hsv.b = float(int(hsv.b + 0.5)) / num_bands;
+			vec3 hsv = floor((rgb2hsv(color.rgb) * num_bands) + 0.5) / num_bands;
 			return vec4(hsv2rgb(hsv), color.a);
 		}
 	]]
