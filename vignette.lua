@@ -29,17 +29,20 @@ description = "Vignette overlay",
 new = function(self)
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
-		extern number radius = 1.0f;
-		extern number softness = 0.45f;
-		extern number opacity = 0.5f;
-		extern number aspect = 1.0f;
+		extern number radius;
+		extern number softness;
+		extern number opacity;
+		extern number aspect;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
 			color = Texel(texture, tc);
 			number v = smoothstep(radius, radius-softness, length((tc - vec2(0.5f)) * aspect));
-			return mix(color, color* v, opacity);
+			return mix(color, color * v, opacity);
 		}
 	]]
+	self.shader:send("radius",1)
+	self.shader:send("softness",.45)
+	self.shader:send("opacity",.5)
 	self.shader:send("aspect", love.graphics.getWidth() / love.graphics.getHeight())
 end,
 
