@@ -25,7 +25,7 @@ SOFTWARE.
 -- unroll convolution loop
 local function build_blur_shader(sigma)
 	local support = math.floor(3*sigma + .5)
-	local one_by_sigma_sq = 1 / (sigma * sigma)
+	local one_by_sigma_sq = sigma > 0 and 1 / (sigma * sigma) or 1
 	local norm = 0
 
 	local code = {[[
