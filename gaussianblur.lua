@@ -24,7 +24,7 @@ SOFTWARE.
 
 -- unroll convolution loop
 local function build_shader(sigma)
-	local support = math.floor(3*sigma + .5)
+	local support = math.max(1, math.floor(3*sigma + .5))
 	local one_by_sigma_sq = 1 / (sigma * sigma)
 	local norm = 0
 
@@ -41,7 +41,7 @@ local function build_shader(sigma)
 		code[#code+1] = blur_line:format(coeff, i)
 	end
 
-	code[#code+1] = ("return c * %sf * color;}"):format(1 / norm)
+	code[#code+1] = ("return c * %sf * color;}"):format(norm > 0 and 1/norm or 1)
 
 	return love.graphics.newShader(table.concat(code))
 end
