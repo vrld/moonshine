@@ -9,6 +9,7 @@ local effect_names = {
 	"gaussianblur",
 	"posterize",
 	"separate_chroma",
+	"simpleglow",
 	"vignette"
 }
 local current, effects
@@ -20,10 +21,14 @@ function love.load()
 		effects[v] = shine[v]()
 	end
 
-	img = love.graphics.newImage('haddaway.jpg')
+	imgs = {
+		i = 1,
+		love.graphics.newImage('haddaway.jpg'),
+		love.graphics.newImage('inspector.png')
+	}
 
 	gui.core.style.color.normal.fg = {10,10,10}
-	gui.core.style.color.normal.bg = {255,255,255, 200}
+	gui.core.style.color.normal.bg = {255,255,255, 250}
 	gui.core.style.color.hot.fg    = {255,255,255}
 	gui.core.style.color.hot.bg    = {100,100,100, 150}
 	gui.core.style.color.active.fg = {255,255,255}
@@ -142,6 +147,17 @@ options = {
 			return ("angle = %.03f, radius = %d"):format(o.angle.value, o.radius.value)
 		end
 	},
+	simpleglow = {opts = {"sigma", "min_luma"},
+		sigma = {value = 5, min = 0, max = 10, onHit = function(v)
+			effects.simpleglow.sigma = v
+		end},
+		min_luma = {value = 0.7, min = 0, max = 1, onHit = function(v)
+			effects.simpleglow.min_luma = v
+		end},
+		dump = function(o)
+			return ("sigma = %.03f, min_luma = %.03f - Warning: recompiles shader on changing sigma"):format(o.sigma.value, o.min_luma.value)
+		end
+	},
 	vignette = {opts = {"radius", "softness", "opacity"},
 		radius = {value = 1, min = 0, max = 1.5, onHit = function(v)
 			effects.vignette.radius = v
@@ -157,15 +173,19 @@ options = {
 		end
 	},
 }
+
 function love.update(dt)
 	gui.group.push{grow='down', pos = {love.graphics.getWidth()-130,5}, size = {120,20}}
-	if gui.Button{text = show_menu and "Hide Menu" or "Effect"} then
+	if gui.Button{text = show_menu and "Hide" or "Effect"} then
 		show_menu = not show_menu
 	end
 	if show_menu then
-		current = gui.Button{text = "none"} and "none" or current
+		current = gui.Button{text = "none", pos = {nil, 7}} and "none" or current
 		for _,name in ipairs(effect_names) do
 			current = gui.Button{text = name} and name or current
+		end
+		if gui.Button{text = "Switch Image", pos = {nil, 7}} then
+			imgs.i = imgs.i % #imgs + 1
 		end
 	end
 	gui.group.pop()
@@ -187,7 +207,7 @@ end
 
 function love.draw()
 	effects[current](function()
-		love.graphics.draw(img, 0,0)
+		love.graphics.draw(imgs[imgs.i], 0,0)
 	end)
 	if show_menu and current ~= "none" then
 		love.graphics.setColor(0,0,0,150)
