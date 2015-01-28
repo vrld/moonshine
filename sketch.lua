@@ -35,7 +35,6 @@ new = function(self)
 	end)
 	self.noisetex = love.graphics.newImage(self.noisetex)
 	self.noisetex:setWrap ("repeat", "repeat")
-	self.noisetex:setFilter("linear", "linear")
 	self.noisetex:setFilter("nearest", "nearest")
 
 	self.shader = love.graphics.newShader[[
