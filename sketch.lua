@@ -1,6 +1,7 @@
 --[[
 The MIT License (MIT)
 
+Copyright (c) 2015 Martin Felis
 Copyright (c) 2015 Matthias Richter
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
