@@ -10,7 +10,8 @@ local effect_names = {
 	"glowsimple",
 	"posterize",
 	"separate_chroma",
-	"vignette"
+	"vignette",
+	"dmg",
 }
 local current, effects
 
@@ -127,6 +128,12 @@ options = {
 		opacity = {value = 0.5, min = 0, max = 1, onHit = setval("vignette", "opacity")},
 		dump = function(o)
 			return ("radius = %.03f, softness = %.03f, opacity = %.03f"):format(o.radius.value, o.softness.value, o.opacity.value)
+		end
+	},
+	dmg = {opts = {"palette"},
+		palette = {value = 1, min = 1, max = 7, step = 1, onHit = setval("dmg","palette")},
+		dump = function(o)
+			return ("palette = %s"):format(math.floor(o.palette.value))
 		end
 	},
 }
