@@ -122,8 +122,8 @@ return {
 		self.shader:send('palette',unpack(palettes[1].colors))
 	end,
 
-	draw = function(self, func)
-		self:_apply_shader_to_scene(self.shader, self.canvas, func)
+	draw = function(self, func, ...)
+		self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 	end,
 
 	set = function(self, key, value)

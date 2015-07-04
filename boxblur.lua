@@ -46,14 +46,12 @@ new = function(self)
 	self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
 end,
 
-draw = function(self, func)
-	local c = love.graphics.getCanvas()
+draw = function(self, func, ...)
 	local s = love.graphics.getShader()
 	local co = {love.graphics.getColor()}
 
 	-- draw scene
-	self.canvas_h:clear()
-	self.canvas_h:renderTo(func)
+	self:_render_to_canvas(self.canvas_h, func, ...)
 
 	love.graphics.setColor(co)
 	love.graphics.setShader(self.shader)
@@ -64,8 +62,8 @@ draw = function(self, func)
 	-- first pass (horizontal blur)
 	self.shader:send('direction', {1 / love.graphics.getWidth(), 0})
 	self.shader:send('radius', math.floor(self.radius_h + .5))
-	self.canvas_v:clear()
-	self.canvas_v:renderTo(function() love.graphics.draw(self.canvas_h, 0,0) end)
+	self:_render_to_canvas(self.canvas_v,
+	                       love.graphics.draw, self.canvas_h, 0,0)
 
 	-- second pass (vertical blur)
 	self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
@@ -75,7 +73,6 @@ draw = function(self, func)
 	-- restore blendmode, shader and canvas
 	love.graphics.setBlendMode(b)
 	love.graphics.setShader(s)
-	love.graphics.setCanvas(c)
 end,
 
 set = function(self, key, value)

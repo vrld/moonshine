@@ -43,11 +43,11 @@ new = function(self)
 	self.shader:send("direction",{0,0})
 end,
 
-draw = function(self, func)
+draw = function(self, func, ...)
 	local dx = math.cos(self.angle) * self.radius / love.graphics.getWidth()
 	local dy = math.sin(self.angle) * self.radius / love.graphics.getHeight()
 	self.shader:send("direction", {dx,dy})
-	self:_apply_shader_to_scene(self.shader, self.canvas, func)
+	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 end,
 
 set = function(self, key, value)

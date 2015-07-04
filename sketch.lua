@@ -68,9 +68,8 @@ new = function(self)
 	self.shader:send("noisetex", self.noisetex)
 end,
 
-draw = function(self, func)
-	self:_apply_shader_to_scene(self.shader, self.canvas, func)
---	self:_apply_shader_to_scene(self.shader, self.canvas, func)
+draw = function(self, func, ...)
+	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 end,
 
 set = function(self, key, value)

@@ -58,9 +58,9 @@ new = function(self)
 	self.shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(), love.graphics.getHeight() / self.noisetex:getHeight()})
 end,
 
-draw = function(self, func)
+draw = function(self, func, ...)
 	self.shader:send("noise", love.math.random())
-	self:_apply_shader_to_scene(self.shader, self.canvas, func)
+	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 end,
 
 set = function(self, key, value)

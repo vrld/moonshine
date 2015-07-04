@@ -58,8 +58,8 @@ new = function(self)
 	self.shader:send("num_bands",1)
 end,
 
-draw = function(self, func)
-	self:_apply_shader_to_scene(self.shader, self.canvas, func)
+draw = function(self, func, ...)
+	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 end,
 
 set = function(self, key, value)

@@ -71,9 +71,9 @@ return {
 		]]
 	end,
 
-	draw = function(self, func)
+	draw = function(self, func, ...)
 		self.shader:send("light_position",{x or 0.5,y or 0.5})
-		self:_apply_shader_to_scene(self.shader, self.canvas, func)
+		self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
 	end,
 
 	set = function(self, key, value)

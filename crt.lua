@@ -82,18 +82,16 @@ distort = function(self, x, y)
 	distorted_x = (distorted_x + 1) * (w / 2)
 	distorted_y = (distorted_y + 1) * (h / 2)
 
-	return {distorted_x, distorted_y}
+	return distorted_x, distorted_y
 end,
 
-draw = function(self, func)
-	local c = love.graphics.getCanvas()
+draw = function(self, func, ...)
 	local s = love.graphics.getShader()
 	local co = {love.graphics.getColor()}
 	local b = love.graphics.getBlendMode()
 
 	-- draw scene to canvas
-	self.canvas:clear()
-	self.canvas:renderTo(func)
+	self:_render_to_canvas(self.canvas, func, ...)
 
 	-- draw outline if required
 	if self._draw_outline then
@@ -118,7 +116,6 @@ draw = function(self, func)
 
 	-- reset shader and canvas
 	love.graphics.setShader(s)
-	love.graphics.setCanvas(c)
 end,
 
 set = function(self, key, value)

@@ -65,8 +65,7 @@ new = function(self)
 	self.shader_thresh:send('min_luma', 0.7)
 end,
 
-draw = function(self, func)
-	local c = love.graphics.getCanvas()
+draw = function(self, func, ...)
 	local s = love.graphics.getShader()
 	local co = {love.graphics.getColor()}
 
@@ -75,8 +74,7 @@ draw = function(self, func)
 
 	-- draw scene with brigthness treshold
 	love.graphics.setShader(self.shader_thresh)
-	self.canvas[1]:clear()
-	self.canvas[1]:renderTo(func)
+	self:_render_to_canvas(self.canvas[1], func, ...)
 
 	love.graphics.setColor(co)
 	local b = love.graphics.getBlendMode()
@@ -85,8 +83,8 @@ draw = function(self, func)
 	love.graphics.setShader(self.shader_blur)
 	-- first pass (horizontal blur)
 	self.shader_blur:send('direction', {1 / love.graphics.getWidth(), 0})
-	self.canvas[2]:clear()
-	self.canvas[2]:renderTo(function() love.graphics.draw(self.canvas[1], 0,0) end)
+	self:_render_to_canvas(self.canvas[2],
+	                       love.graphics.draw, self.canvas[1], 0,0)
 
 	-- second pass (vertical blur)
 	love.graphics.setBlendMode('additive')
@@ -96,7 +94,6 @@ draw = function(self, func)
 	-- restore blendmode, shader and canvas
 	love.graphics.setBlendMode(b)
 	love.graphics.setShader(s)
-	love.graphics.setCanvas(c)
 end,
 
 set = function(self, key, value)
