@@ -27,9 +27,10 @@ requires = {'canvas', 'shader'},
 description = "CRT-like barrel distortion",
 
 new = function(self)
-	self.x_distortion, self.y_distortion = 0.06, 0.065
-	self.outline = {25, 25, 26}
-	self.draw_outline = true
+	self._x_distortion, self._y_distortion = 0.06, 0.065
+	self._outline = {25, 25, 26}
+	self._draw_outline = true
+
 	self.canvas = love.graphics.newCanvas()
 	self.shader = love.graphics.newShader[[
 	// How much we distort on the x and y axis.
@@ -62,8 +63,8 @@ new = function(self)
 		return Texel(texture, working_coords);
 	}
 	]]
-	self.shader:send("x_distortion", self.x_distortion)
-	self.shader:send("y_distortion", self.y_distortion)
+	self.shader:send("x_distortion", self._x_distortion)
+	self.shader:send("y_distortion", self._y_distortion)
 end,
 
 distort = function(self, x, y)
@@ -74,8 +75,8 @@ distort = function(self, x, y)
 	local distorted_x = (x / (w / 2)) - 1
 	local distorted_y = (y / (h / 2)) - 1
 
-	distorted_x = distorted_x + (distorted_y * distorted_y) * distorted_x * self.x_distortion
-	distorted_y = distorted_y + (distorted_x * distorted_x) * distorted_y * self.y_distortion
+	distorted_x = distorted_x + (distorted_y * distorted_y) * distorted_x * self._x_distortion
+	distorted_y = distorted_y + (distorted_x * distorted_x) * distorted_y * self._y_distortion
 
 	-- turn -1 -> 1 into 0 -> w/h
 	distorted_x = (distorted_x + 1) * (w / 2)
@@ -95,14 +96,14 @@ draw = function(self, func)
 	self.canvas:renderTo(func)
 
 	-- draw outline if required
-	if self.draw_outline then
+	if self._draw_outline then
 		love.graphics.setBlendMode('replace')
 		local width = love.graphics.getLineWidth()
 		love.graphics.setLineWidth(1)
 		self.canvas:renderTo(function()
 			local w = love.graphics.getWidth()
 			local h = love.graphics.getHeight()
-			love.graphics.setColor(self.outline)
+			love.graphics.setColor(self._outline)
 			love.graphics.line(0,0, w,0, w,h, 0,h, 0,0)
 		end)
 		love.graphics.setLineWidth(width)
@@ -123,18 +124,18 @@ end,
 set = function(self, key, value)
 	if key == "x" then
 		assert(type(value) == "number")
-		self.x_distortion = value
+		self._x_distortion = value
 		self.shader:send("x_distortion", value)
 	elseif key == "y" then
 		assert(type(value) == "number")
-		self.y_distortion = value
+		self._y_distortion = value
 		self.shader:send("y_distortion", value)
 	elseif key == "draw_outline" then
-		assert(type(value) == "bool")
-		self.draw_outline = value
+		assert(type(value) == "boolean")
+		self._draw_outline = value
 	elseif key == "outline" then
 		assert(type(value) == "table")
-		self.outline = value
+		self._outline = value
 	else
 		error("Unknown property: " .. tostring(key))
 	end
