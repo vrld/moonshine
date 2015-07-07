@@ -20,7 +20,7 @@ function love.load()
     vignette.parameters = {radius = 0.9, opacity = 0.7}
     
     -- you can also provide parameters on effect construction
-    local desaturate = shine.desaturate{stength = 0.6, tint = {255,250,200}}
+    local desaturate = shine.desaturate{strength = 0.6, tint = {255,250,200}}
     
     -- you can chain multiple effects
     post_effect = desaturate:chain(grain):chain(vignette)
