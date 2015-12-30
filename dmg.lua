@@ -101,7 +101,6 @@ local lookup_palette = function(name)
 end
 
 return {
-	requires = {'canvas', 'shader'},
 	description = "DMG Color Emulation",
 
 	new = function(self)

@@ -38,7 +38,6 @@ SOFTWARE.
 local x,y
 
 return {
-	requires = {'canvas', 'shader'},
 	description = "Realtime Light Scattering",
 
 	new = function(self)

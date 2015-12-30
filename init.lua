@@ -31,8 +31,8 @@ shine.__index = shine
 function shine._render_to_canvas(_, canvas, func, ...)
 	local old_canvas = love.graphics.getCanvas()
 
-	canvas:clear()
 	love.graphics.setCanvas(canvas)
+	love.graphics.clear()
 	func(...)
 
 	love.graphics.setCanvas(old_canvas)
@@ -49,7 +49,7 @@ function shine._apply_shader_to_scene(_, shader, canvas, func, ...)
 	love.graphics.setColor(co)
 	love.graphics.setShader(shader)
 	local b = love.graphics.getBlendMode()
-	love.graphics.setBlendMode('premultiplied')
+	love.graphics.setBlendMode('alpha', 'premultiplied')
 	love.graphics.draw(canvas, 0,0)
 	love.graphics.setBlendMode(b)
 
@@ -101,11 +101,6 @@ return setmetatable({}, {__index = function(self, key)
 	end
 
 	setmetatable(effect, shine)
-	for _, v in ipairs(effect.requires) do
-		if not love.graphics.isSupported(v) then
-			error(v.." not supported by the graphics card", 2)
-		end
-	end
 
 	local constructor = function(t)
 		local instance = {}

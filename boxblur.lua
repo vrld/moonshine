@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Box blur shader with support for different horizontal and vertical blur size",
 
 new = function(self)
@@ -57,7 +56,7 @@ draw = function(self, func, ...)
 	love.graphics.setShader(self.shader)
 
 	local b = love.graphics.getBlendMode()
-	love.graphics.setBlendMode('premultiplied')
+	love.graphics.setBlendMode('alpha', 'premultiplied')
 
 	-- first pass (horizontal blur)
 	self.shader:send('direction', {1 / love.graphics.getWidth(), 0})

@@ -47,7 +47,6 @@ local function build_blur_shader(sigma)
 end
 
 return {
-requires = {'canvas', 'shader'},
 description = "Simple glow shader based on gassian blurring",
 
 new = function(self)
@@ -78,7 +77,7 @@ draw = function(self, func, ...)
 
 	love.graphics.setColor(co)
 	local b = love.graphics.getBlendMode()
-	love.graphics.setBlendMode('premultiplied')
+	love.graphics.setBlendMode('alpha', 'premultiplied')
 
 	love.graphics.setShader(self.shader_blur)
 	-- first pass (horizontal blur)
@@ -87,7 +86,7 @@ draw = function(self, func, ...)
 	                       love.graphics.draw, self.canvas[1], 0,0)
 
 	-- second pass (vertical blur)
-	love.graphics.setBlendMode('additive')
+	love.graphics.setBlendMode('add')
 	self.shader_blur:send('direction', {0, 1 / love.graphics.getHeight()})
 	love.graphics.draw(self.canvas[2], 0,0)
 

@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Separates red, green and blue components",
 
 new = function(self)

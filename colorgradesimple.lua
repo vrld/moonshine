@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Simple linear color grading of red, green and blue channel",
 
 new = function(self)

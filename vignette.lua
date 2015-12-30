@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Vignette overlay",
 
 new = function(self)

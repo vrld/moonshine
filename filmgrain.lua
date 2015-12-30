@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Film grain overlay",
 
 new = function(self)

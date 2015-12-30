@@ -148,7 +148,6 @@ local function build_shader(add_original, samples)
 end
 
 return {
-requires = {'canvas', 'shader'},
 description = "Pixelation",
 
 new = function(self)

@@ -24,7 +24,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "Sketched drawing style",
 
 new = function(self)

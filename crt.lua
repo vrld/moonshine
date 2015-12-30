@@ -23,7 +23,6 @@ SOFTWARE.
 ]]--
 
 return {
-requires = {'canvas', 'shader'},
 description = "CRT-like barrel distortion",
 
 new = function(self)
@@ -110,7 +109,7 @@ draw = function(self, func, ...)
 	-- apply shader to canvas
 	love.graphics.setColor(co)
 	love.graphics.setShader(self.shader)
-	love.graphics.setBlendMode('premultiplied')
+	love.graphics.setBlendMode('alpha', 'premultiplied')
 	love.graphics.draw(self.canvas, 0,0)
 	love.graphics.setBlendMode(b)
 
