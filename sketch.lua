@@ -61,8 +61,8 @@ new = function(self)
 	-- Set the screen_center positions when the camera moves but the
 	-- noise texture should stay fixed in world coordinates to reduce
 	-- aliasing effects.
-	self.shader:send("screen_center_x",love.window.getWidth() * 0.5)
-	self.shader:send("screen_center_y",love.window.getHeight() * 0.5)
+	self.shader:send("screen_center_x",love.graphics.getWidth() * 0.5)
+	self.shader:send("screen_center_y",love.graphics.getHeight() * 0.5)
 
 	self.shader:send("noisetex", self.noisetex)
 end,
