@@ -120,7 +120,7 @@ set = function(self, key, value)
 	elseif key == "line_height" then
 		assert(type(value) == "number")
 		self._line_height = value
-		self.shader:send("line_height", value)
+		self.shader:send("scanline_height", value)
 	else
 		error("Unknown property: " .. tostring(key))
 	end
