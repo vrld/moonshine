@@ -1,53 +1,22 @@
 --[[
-The MIT License (MIT)
+Public domain:
 
-Copyright (c) 2015 Matthias Richter
+Copyright (C) 2017 by Matthias Richter <vrld@vrld.org>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return {
-description = "Simple linear color grading of red, green and blue channel",
+return function(shine)
+  local shader = love.graphics.newShader[[
+    extern vec3 grade_color;
+    vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
+      return vec4(grade, 1.0f) * Texel(texture, tc) * color;
+    }]]
 
-new = function(self)
-	self.canvas = love.graphics.newCanvas()
-	self.shader = love.graphics.newShader[[
-		extern vec3 grade;
-		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-		{
-			return vec4(grade, 1.0f) * Texel(texture, tc) * color;
-		}
-	]]
-	self.shader:send("grade",{1.0,1.0,1.0})
-end,
+  local setters = {}
+  setters.grade_color = function(v) shader:send("grade_color", v) end
 
-draw = function(self, func, ...)
-	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
-end,
-
-set = function(self, key, value)
-	if key == "grade" then
-		self.shader:send(key, value)
-	else
-		error("Unknown property: " .. tostring(key))
-	end
-
-	return self
+  return {shader = shader, setters = setters, defaults = {grade_color = {1,1,1}}}
 end
-}
