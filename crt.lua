@@ -1,141 +1,54 @@
 --[[
-The MIT License (MIT)
+Public domain:
 
-Copyright (c) 2015 Daniel Oaks
+Copyright (C) 2017 by Matthias Richter <vrld@vrld.org>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return {
-description = "CRT-like barrel distortion",
+return function()
+  -- Barrel distortion adapted from Daniel Oaks (see commit cef01b67fd)
+  -- Added feather to mask out outside of distorted texture
+  local magnitude = {0.06, 0.065}
+  local shader = love.graphics.newShader[[
+    extern vec2 magnitude;
+    extern number feather;
 
-new = function(self)
-	self._x_distortion, self._y_distortion = 0.06, 0.065
-	self._outline = {25, 25, 26}
-	self._draw_outline = true
+    vec4 effect(vec4 color, Image tex, vec2 uv, vec2 px) {
+      // to barrel coordinates
+      uv = uv * 2.0 - vec2(1.0);
 
-	self.canvas = love.graphics.newCanvas()
-	self.shader = love.graphics.newShader[[
-	// How much we distort on the x and y axis.
-	//   from 0 to 1
-	extern float x_distortion;
-	extern float y_distortion;
+      // distort
+      uv += (uv.yx*uv.yx) * uv * magnitude;
+      number mask = (1.0 - smoothstep(1.0-feather,1.0,abs(uv.x)))
+                  * (1.0 - smoothstep(1.0-feather,1.0,abs(uv.y)));
 
-	vec2 distort_coords(vec2 point)
-	{
-		// convert to coords we use for barrel distort function
-		//   turn 0 -> 1 into -1 -> 1
-		point.x = ((point.x * 2.0) - 1.0);
-		point.y = ((point.y * -2.0) + 1.0);
+      // to cartesian coordinates
+      uv = (uv + vec2(1.0)) / 2.0;
 
-		// distort
-		point.x = point.x + (point.y * point.y) * point.x * x_distortion;
-		point.y = point.y + (point.x * point.x) * point.y * y_distortion;
+      return color * Texel(tex, uv) * mask;
+    }
+  ]]
 
-		// convert back to coords glsl uses
-		//   turn -1 -> 1 into 0 -> 1
-		point.x = ((point.x + 1.0) / 2.0);
-		point.y = ((point.y - 1.0) / -2.0);
+  local setters = {}
 
-		return point;
-	}
+  setters.magnitude = function(v)
+    assert(type(v) == "table" and #l == 2, "Invalid value for `magnitude'")
+    magnitude = {unpack(v)}
+    shader:send("magnitude", v)
+  end
 
-	vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-	{
-		vec2 working_coords = distort_coords(tc);
-		return Texel(texture, working_coords);
-	}
-	]]
-	self.shader:send("x_distortion", self._x_distortion)
-	self.shader:send("y_distortion", self._y_distortion)
-end,
+  setters.x = function(v) setters.magnitude{v, magnitude[2]} end
+  setters.y = function(v) setters.magnitude{magnitude[1], v} end
 
-distort = function(self, x, y)
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
+  setters.feather = function(v) shader:send("feather", v) end
 
-	-- turn 0 -> w/h into -1 -> 1
-	local distorted_x = (x / (w / 2)) - 1
-	local distorted_y = (y / (h / 2)) - 1
+  local defaults = {
+    magnitude = {0.06, 0.065},
+    feather = 0.02
+  }
 
-	distorted_x = distorted_x + (distorted_y * distorted_y) * distorted_x * self._x_distortion
-	distorted_y = distorted_y + (distorted_x * distorted_x) * distorted_y * self._y_distortion
-
-	-- turn -1 -> 1 into 0 -> w/h
-	distorted_x = (distorted_x + 1) * (w / 2)
-	distorted_y = (distorted_y + 1) * (h / 2)
-
-	return distorted_x, distorted_y
-end,
-
-draw = function(self, func, ...)
-	local s = love.graphics.getShader()
-	local co = {love.graphics.getColor()}
-	local b = love.graphics.getBlendMode()
-
-	-- draw scene to canvas
-	self:_render_to_canvas(self.canvas, func, ...)
-
-	-- draw outline if required
-	if self._draw_outline then
-		love.graphics.setBlendMode('replace')
-		local width = love.graphics.getLineWidth()
-		love.graphics.setLineWidth(1)
-		self.canvas:renderTo(function()
-			local w = love.graphics.getWidth()
-			local h = love.graphics.getHeight()
-			love.graphics.setColor(self._outline)
-			love.graphics.line(0,0, w,0, w,h, 0,h, 0,0)
-		end)
-		love.graphics.setLineWidth(width)
-	end
-
-	-- apply shader to canvas
-	love.graphics.setColor(co)
-	love.graphics.setShader(self.shader)
-	love.graphics.setBlendMode('alpha', 'premultiplied')
-	love.graphics.draw(self.canvas, 0,0)
-	love.graphics.setBlendMode(b)
-
-	-- reset shader and canvas
-	love.graphics.setShader(s)
-end,
-
-set = function(self, key, value)
-	if key == "x" then
-		assert(type(value) == "number")
-		self._x_distortion = value
-		self.shader:send("x_distortion", value)
-	elseif key == "y" then
-		assert(type(value) == "number")
-		self._y_distortion = value
-		self.shader:send("y_distortion", value)
-	elseif key == "draw_outline" then
-		assert(type(value) == "boolean")
-		self._draw_outline = value
-	elseif key == "outline" then
-		assert(type(value) == "table")
-		self._outline = value
-	else
-		error("Unknown property: " .. tostring(key))
-	end
-
-	return self
+  return {shader = shader, setters = setters, defaults = defaults}
 end
-}
