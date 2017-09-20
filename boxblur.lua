@@ -1,88 +1,50 @@
 --[[
-The MIT License (MIT)
+Public domain:
 
-Copyright (c) 2015 Matthias Richter
+Copyright (C) 2017 by Matthias Richter <vrld@vrld.org>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return {
-description = "Box blur shader with support for different horizontal and vertical blur size",
+return function(shine)
+  local radius_x, radius_y = 3, 3
+  local shader = love.graphics.newShader[[
+    extern vec2 direction;
+    extern number radius;
+    vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
+      vec4 c = vec4(0.0f);
 
-new = function(self)
-	self.radius_h, self.radius_v = 3, 3
-	self.canvas_h, self.canvas_v = love.graphics.newCanvas(), love.graphics.newCanvas()
-	self.shader = love.graphics.newShader[[
-		extern vec2 direction;
-		extern number radius;
-		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-		{
-			vec4 c = vec4(0.0f);
+      for (float i = -radius; i <= radius; i += 1.0f)
+      {
+        c += Texel(texture, tc + i * direction);
+      }
+      return c / (2.0f * radius + 1.0f) * color;
+    }]]
 
-			for (float i = -radius; i <= radius; i += 1.0f)
-			{
-				c += Texel(texture, tc + i * direction);
-			}
-			return c / (2.0f * radius + 1.0f) * color;
-		}
-	]]
-	self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
-end,
+  local setters = {}
+  setters.radius = function(v)
+    if type(v) == "number" then
+      radius_x, radius_y = v, v
+    elseif type(v) == "table" and #v >= 2 then
+      radius_x, radius_y = tonumber(v[1] or v.h or v.x), tonumber(v[2] or v.v or v.y)
+    else
+      error("Invalid argument `radius'")
+    end
+  end
+  setters.radius_x = function(v) radius_x = tonumber(v) end
+  setters.radius_y = function(v) radius_y = tonumber(v) end
 
-draw = function(self, func, ...)
-	local s = love.graphics.getShader()
-	local co = {love.graphics.getColor()}
+  local draw = function(buffer, shader)
+    shader:send('direction', {1 / love.graphics.getWidth(), 0})
+    shader:send('radius', math.floor(radius_x + .5))
+    shine.draw_shader(buffer, shader)
 
-	-- draw scene
-	self:_render_to_canvas(self.canvas_h, func, ...)
+    self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
+    shader:send('radius', math.floor(radius_y + .5))
+    shine.draw_shader(buffer, shader)
+  end
 
-	love.graphics.setColor(co)
-	love.graphics.setShader(self.shader)
-
-	local b = love.graphics.getBlendMode()
-	love.graphics.setBlendMode('alpha', 'premultiplied')
-
-	-- first pass (horizontal blur)
-	self.shader:send('direction', {1 / love.graphics.getWidth(), 0})
-	self.shader:send('radius', math.floor(self.radius_h + .5))
-	self:_render_to_canvas(self.canvas_v,
-	                       love.graphics.draw, self.canvas_h, 0,0)
-
-	-- second pass (vertical blur)
-	self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
-	self.shader:send('radius', math.floor(self.radius_v + .5))
-	love.graphics.draw(self.canvas_v, 0,0)
-
-	-- restore blendmode, shader and canvas
-	love.graphics.setBlendMode(b)
-	love.graphics.setShader(s)
-end,
-
-set = function(self, key, value)
-	local sz = math.floor(assert(tonumber(value), "Not a number: "..tostring(value)) + .5)
-	if key == "radius" then
-		self.radius_h, self.radius_v = sz, sz
-	elseif key == "radius_h" or key == "radius_v" then
-		self[key] = sz
-	else
-		error("Unknown property: " .. tostring(key))
-	end
-	return self
+  return {shader = shader, setters = setters, defaults = {radius = 3}, draw = draw}
 end
-}
