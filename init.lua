@@ -1,7 +1,7 @@
 --[[
 The MIT License (MIT)
 
-Copyright (c) 2015 Matthias Richter
+Copyright (c) 2017 Matthias Richter
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,93 +25,95 @@ SOFTWARE.
 local BASE = ...
 
 local shine = {}
-shine.__index = shine
 
--- commonly used utility function
-function shine._render_to_canvas(_, canvas, func, ...)
-	local old_canvas = love.graphics.getCanvas()
-
-	love.graphics.setCanvas(canvas)
-	love.graphics.clear()
-	func(...)
-
-	love.graphics.setCanvas(old_canvas)
+local Chain = {}
+Chain.__call = function(_, ...) return chain.next(...) end,
+Chain.__newindex = function(_,k,v)
+  -- if k == "parameters" and type(v) == "table" then for k,v in (v) do _[k]=v end end
+  for _, e in ipairs(chain) do
+    if e.setters[k] then return e.setters[k](v, k) end
+  end
+  error(("Unknown property: %q"):format(k), 2)
 end
 
-function shine._apply_shader_to_scene(_, shader, canvas, func, ...)
-	local s = love.graphics.getShader()
-	local co = {love.graphics.getColor()}
-
-	-- draw scene to canvas
-	shine._render_to_canvas(_, canvas, func, ...)
-
-	-- apply shader to canvas
-	love.graphics.setColor(co)
-	love.graphics.setShader(shader)
-	local b = love.graphics.getBlendMode()
-	love.graphics.setBlendMode('alpha', 'premultiplied')
-	love.graphics.draw(canvas, 0,0)
-	love.graphics.setBlendMode(b)
-
-	-- reset shader and canvas
-	love.graphics.setShader(s)
+shine.draw_shader = function(buffer, shader)
+  front, back = buffer()
+  love.graphics.setCanvas(front)
+  love.graphics.clear()
+  love.graphics.setShader(shader)
+  love.graphics.draw(back)
 end
 
--- effect chaining
-function shine.chain(first, second)
-	local effect = {}
-	function effect:set(k, v)
-		local ok = pcall(first.set, first, k, v)
-		ok = pcall(second.set, second, k, v) or ok
-		if not ok then
-			error("Unknown property: " .. tostring(k))
-		end
-	end
-	function effect:draw(func, ...)
-		local args = {n = select('#',...), ...}
-		second(function() first(func, unpack(args, 1, args.n)) end)
-	end
+shine.chain = function(effect)
+  local chain = setmetatable({}, Chain)
 
-	return setmetatable(effect, {__newindex = shine.__newindex, __index = shine, __call = effect.draw})
+  chain.next = function(next_effect)
+    chain[#chain+1] = next_effect
+    for k,v in pairs(next_effect.defaults or {}) do
+      next_effect.settes[k](v,k)
+    end
+    return chain
+  end
+  chain.next(next_effect)
+
+  local front, back = love.graphics.newCanvas(), love.graphics.newCanvas()
+  local buffer = function()
+    back, front = front, back
+    return front, back
+  end
+
+  chain.draw = function(func, ...)
+    -- save state
+    local canvas = love.graphics.getCanvas()
+    local shader = love.graphics.getShader()
+    local color = {love.graphics.getColor()}
+
+    -- draw scene to front buffer
+    love.graphics.setCanvas(buffer())
+    love.graphics.clear()
+    func(...)
+
+    -- save more state
+    local blendmode = love.graphics.getBlendMode()
+
+    -- process all shaders
+    love.graphics.setColor(color)
+    love.graphics.setBlendMode("alpha", "premultiplied")
+    for _,e in ipairs(chain) do
+      (e.draw or shine.draw_shader)(buffer, e.shader)
+    end
+
+    -- present result
+    love.graphics.setShader()
+    love.graphics.setCanvas(canvas)
+    love.graphics.draw(front,0,0)
+
+    -- restore state
+    love.graphics.setBlendMode(blendmode)
+    love.graphics.setShader(shader)
+  end
+
+  return chain
 end
 
--- guards
-function shine.draw()
-	error("Incomplete effect: draw(func) not implemented", 2)
-end
-function shine.set()
-	error("Incomplete effect: set(key, value) not implemented", 2)
-end
+-- autoloading effects
+shine.effects = setmetatable({}, {__index = function(self, key)
+  local ok, effect = pcall(require, BASE .. "." .. key)
+  if not ok then
+    error("No such effect: "..key, 2)
+  end
 
-function shine.__newindex(self, k, v)
-	if k == "parameters" then
-		assert(type(v) == "table")
-		for k,v in pairs(v) do
-			self:set(k,v)
-		end
-	else
-		self:set(k, v)
-	end
-end
+  -- call effect with reference to shine and expose setters
+  effect = function(...)
+    return setmetatable(effect(shine, ...), {
+      __newindex = function(self,k,v)
+        assert(self.setters[k], ("Unknown property: %q"):format(k))
+        self.setters[k](v, k)
+      end})
+    end
 
-return setmetatable({}, {__index = function(self, key)
-	local ok, effect = pcall(require, BASE .. "." .. key)
-	if not ok then
-		error("No such effect: "..key, 2)
-	end
-
-	setmetatable(effect, shine)
-
-	local constructor = function(t)
-		local instance = {}
-		effect.new(instance)
-		setmetatable(instance, {__newindex = shine.__newindex, __index = effect, __call = effect.draw})
-		if t and type(t) == "table" then
-			instance.parameters = t
-		end
-		return instance
-	end
-
-	self[key] = constructor
-	return constructor
+  self[key] = effect
+  return effect
 end})
+
+return shine
