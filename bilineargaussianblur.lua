@@ -82,7 +82,7 @@ vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {]]}
 		norm = norm + weight * 2
 		code[#code+1] = tmpl:format(weight, offset, offset)
 	end
-	code[#code+1] = ('return c * vec4(%f); }'):format(1 / norm)
+	code[#code+1] = ('return c * vec4(%f) * color; }'):format(1 / norm)
 
 	local shader = table.concat(code)
 	return love.graphics.newShader(shader)
