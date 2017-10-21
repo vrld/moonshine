@@ -1,74 +1,54 @@
 --[[
-The MIT License (MIT)
+Public domain:
 
-Copyright (c) 2015 Matthias Richter
+Copyright (C) 2017 by Matthias Richter <vrld@vrld.org>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return {
-description = "Film grain overlay",
+return function(shine)
+  local noisetex = love.image.newImageData(100,100)
+  noisetex:mapPixel(function()
+    local l = love.math.random() * 255
+    return l,l,l,l
+  end)
+  noisetex = love.graphics.newImage(noisetex)
 
-new = function(self)
-	self.canvas = love.graphics.newCanvas()
-	self.noisetex = love.image.newImageData(100,100)
-	self.noisetex:mapPixel(function()
-		local l = love.math.random() * 255
-		return l,l,l,l
-	end)
-	self.noisetex = love.graphics.newImage(self.noisetex)
-	self.shader = love.graphics.newShader[[
-		extern number opacity;
-		extern number grainsize;
-		extern number noise;
-		extern Image noisetex;
-		extern vec2 tex_ratio;
-		float rand(vec2 co)
-		{
-			return Texel(noisetex, mod(co * tex_ratio / vec2(grainsize), vec2(1.0))).r;
-		}
+  local shader = love.graphics.newShader[[
+    extern number grainopacity;
+    extern number grainsize;
+    extern number noise;
+    extern Image noisetex;
+    extern vec2 tex_ratio;
 
-		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-		{
-			return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), opacity);
-		}
-	]]
-	self.shader:send("opacity",.3)
-	self.shader:send("grainsize",1)
+    float rand(vec2 co) {
+      return Texel(noisetex, mod(co * tex_ratio / vec2(grainsize), vec2(1.0))).r;
+    }
 
-	self.shader:send("noise",0)
-	self.shader:send("noisetex", self.noisetex)
-	self.shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(), love.graphics.getHeight() / self.noisetex:getHeight()})
-end,
+    vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
+      return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), grainopacity);
+    }]]
 
-draw = function(self, func, ...)
-	self.shader:send("noise", love.math.random())
-	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
-end,
+  shader:send("noise",0)
+  shader:send("noisetex", self.noisetex)
+  shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(),
+                            love.graphics.getHeight() / self.noisetex:getHeight()})
 
-set = function(self, key, value)
-	if key == "opacity" or key == "grainsize" then
-		self.shader:send(key, math.max(0, tonumber(value) or 0))
-	else
-		error("Unknown property: " .. tostring(key))
-	end
+  local setters = {}
+  for _,k in ipairs{"grainopacity", "grainsize"} do
+    setters[k] = function(v) shader:send(k, math.max(0, tonumber(v) or 0)) end
+  end
 
-	return self
+  local defaults = {grainopacity = .3, grainsize = 1}
+
+  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
 end
-}
