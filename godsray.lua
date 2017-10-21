@@ -1,7 +1,8 @@
 --[[
 The MIT License (MIT)
 
-Copyright (c) 2015 Josef Patoprsty
+Original code: Copyright (c) 2015 Josef Patoprsty
+Port to moonshine: Copyright (c) 2017 Matthias Richter <vrld@vrld.org>
 
 Based on work by: ioxu
 
@@ -11,10 +12,10 @@ Based on work by: Fabien Sanglard
 
 http://fabiensanglard.net/lightScattering/index.php
 
-Based on work from: 
+Based on work from:
 
-[Mitchell]: Kenny Mitchell "Volumetric Light Scattering as a Post-Process" GPU Gems 3 (2005). 
-[Mitchell2]: Jason Mitchell "Light Shaft Rendering" ShadersX3 (2004). 
+[Mitchell]: Kenny Mitchell "Volumetric Light Scattering as a Post-Process" GPU Gems 3 (2005).
+[Mitchell2]: Jason Mitchell "Light Shaft Rendering" ShadersX3 (2004).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,59 +36,65 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
-local x,y
+return function(shine)
+  local shader = love.graphics.newShader[[
+    extern number exposure;
+    extern number decay;
+    extern number density;
+    extern number weight;
+    extern vec2 light_position;
+    extern number samples;
 
-return {
-	description = "Realtime Light Scattering",
+    vec4 effect(vec4 color, Image tex, vec2 uv, vec2 px) {
+      vec2 offset = (uv - light_position) * density / samples;
+      number illumination = 1.0;
+      vec4 c = vec4(.0, .0, .0, 1.0);
 
-	new = function(self)
-		self.canvas = love.graphics.newCanvas()
-		self.shader = love.graphics.newShader[[
-			extern number exposure = 0.3;
-			extern number decay = .95;
-			extern number density = .4;
-			extern number weight = .3;
-			extern vec2 light_position= vec2(0.5,0.5);
-			extern number samples = 70.0 ;
+      for (int i = 0; i < samples; ++i) {
+        uv -= offset;
+        c += Texel(tex, uv) * illumination * weight;
+        illumination *= decay;
+      }
 
-			vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords) {
-				vec2 deltaTextCoord = vec2( texture_coords - light_position.xy );
-				vec2 textCoo = texture_coords.xy;
-				deltaTextCoord *= 1.0 / float(samples) * density;
-				float illuminationDecay = 1.0;
-				vec4 cc = vec4(0.0, 0.0, 0.0, 1.0);
+      return vec4(c.rgb * exposure, 1.0);
+    }]]
 
-				for(int i=0; i < samples ; i++) {
-					textCoo -= deltaTextCoord;
-					vec4 sample = Texel( texture, textCoo );
-					sample *= illuminationDecay * weight;
-					cc += sample;
-					illuminationDecay *= decay;
-				}
-				cc *= exposure;
-				return cc;
-			}
-		]]
-	end,
 
-	draw = function(self, func, ...)
-		self.shader:send("light_position",{x or 0.5,y or 0.5})
-		self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
-	end,
+  local setters, light_position = {}
 
-	set = function(self, key, value)
-		if key == "exposure" or key == "decay" or key == "density" or key == "weight" then
-			self.shader:send(key,math.min(1,math.max(0,tonumber(value) or 0)))
-		elseif key == "positionx" then
-			x = math.min(1,math.max(0,tonumber(value) or 0.5))
-		elseif key == "positiony" then
-			y = math.min(1,math.max(0,tonumber(value) or 0.5))
-		elseif key == "samples" then
-			self.shader:send(key,math.max(1,tonumber(value) or 1))
-		else
-			error("Unknown property: " .. tostring(key))
-		end
+  for _,k in ipairs{"exposure", "decay", "density", "weight"} do
+    setters[k] = function(v)
+      shader:send(k, math.min(1, math.max(0, tonumber(v) or 0)))
+    end
+  end
 
-		return self
-	end
-}
+  setters.light_position = function(v)
+    light_position = {unpack(v)}
+    shader:send("light_position", v)
+  end
+
+  setters.light_x = function(v)
+    assert(type(v) == "number", "Invalid value for `light_x'")
+    setters.light_position{v, light_position[2]}
+  end
+
+  setters.light_y = function(v)
+    assert(type(v) == "number", "Invalid value for `light_y'")
+    setters.light_position{light_position[1], v}
+  end
+
+  setters.samples = function(v)
+    shader:send("samples", math.max(1,tonumber(value) or 1))
+  end
+
+  local defaults = {
+    exposure = 0.5,
+    decay = 0.95,
+    density = 0.05,
+    weight = 0.5,
+    light_position = {0.5,0.5},
+    samples = 70
+  }
+
+  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
+end
