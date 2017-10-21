@@ -36,11 +36,11 @@ return function(shine)
   local setters = {}
   setters.sigma = function(v) shader = resetShader(math.max(0,tonumber(v) or 1)) end
 
-  local draw = function(buffer, shader)
+  local draw = function(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
     shine.draw_shader(buffer, shader)
 
-    self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
+    shader:send('direction', {0, 1 / love.graphics.getHeight()})
     shine.draw_shader(buffer, shader)
   end
 

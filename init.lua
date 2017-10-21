@@ -26,41 +26,24 @@ local BASE = ...
 
 local shine = {}
 
-local Chain = {}
-Chain.__call = function(_, ...) return chain.next(...) end,
-Chain.__newindex = function(_,k,v)
-  -- if k == "parameters" and type(v) == "table" then for k,v in (v) do _[k]=v end end
-  for _, e in ipairs(chain) do
-    if e.setters[k] then return e.setters[k](v, k) end
-  end
-  error(("Unknown property: %q"):format(k), 2)
-end
-
 shine.draw_shader = function(buffer, shader)
   front, back = buffer()
   love.graphics.setCanvas(front)
   love.graphics.clear()
-  love.graphics.setShader(shader)
+  if shader ~= love.graphics.getShader() then
+    love.graphics.setShader(shader)
+  end
   love.graphics.draw(back)
 end
 
 shine.chain = function(effect)
-  local chain = setmetatable({}, Chain)
-
-  chain.next = function(next_effect)
-    chain[#chain+1] = next_effect
-    for k,v in pairs(next_effect.defaults or {}) do
-      next_effect.settes[k](v,k)
-    end
-    return chain
-  end
-  chain.next(next_effect)
-
   local front, back = love.graphics.newCanvas(), love.graphics.newCanvas()
   local buffer = function()
     back, front = front, back
     return front, back
   end
+
+  local chain = {}
 
   chain.draw = function(func, ...)
     -- save state
@@ -93,7 +76,43 @@ shine.chain = function(effect)
     love.graphics.setShader(shader)
   end
 
-  return chain
+  chain.next = function(e)
+    if type(e) == "function" then
+      e = e()
+    end
+    assert(e.shader or e.draw, "Invalid effect: must provide `shader' or `draw'.")
+    table.insert(chain, e)
+    return chain
+  end
+  chain.chain = chain.next
+
+  setmetatable(chain, {
+    __call = function(_, ...) return chain.draw(...) end,
+    __newindex = function(_,k,v)
+      -- if k == "parameters" and type(v) == "table" then for k,v in (v) do _[k]=v end end
+      for _, e in ipairs(chain) do
+        if e.setters[k] then return e.setters[k](v, k) end
+      end
+      error(("Unknown property: %q"):format(k), 2)
+    end
+  })
+
+  return chain.next(effect)
+end
+
+shine.Effect = function(e)
+  -- set defaults
+  for k,v in pairs(e.defaults or {}) do
+    assert(e.setters[k], ("No setter for parameter `%s'"):format(k))(v, k)
+    e.setters[k](v,k)
+  end
+
+  -- expose setters
+  return setmetatable(e, {
+    __newindex = function(self,k,v)
+      assert(self.setters[k], ("Unknown property: %q"):format(k))
+      self.setters[k](v, k)
+    end})
 end
 
 -- autoloading effects
@@ -103,17 +122,12 @@ shine.effects = setmetatable({}, {__index = function(self, key)
     error("No such effect: "..key, 2)
   end
 
-  -- call effect with reference to shine and expose setters
-  effect = function(...)
-    return setmetatable(effect(shine, ...), {
-      __newindex = function(self,k,v)
-        assert(self.setters[k], ("Unknown property: %q"):format(k))
-        self.setters[k](v, k)
-      end})
-    end
+  -- expose shine to effect
+  local con = function(...) return effect(shine, ...) end
 
-  self[key] = effect
-  return effect
+  -- cache effect constructor
+  self[key] = con
+  return con
 end})
 
 return shine
