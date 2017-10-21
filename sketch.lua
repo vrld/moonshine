@@ -2,7 +2,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2015 Martin Felis
-Copyright (c) 2015 Matthias Richter
+Copyright (c) 2017 Matthias Richter
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,61 +23,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
-return {
-description = "Sketched drawing style",
+return function(shine)
+  local noisetex = love.image.newImageData(256,256)
+  noisetex:mapPixel(function()
+    return love.math.random() * 255,love.math.random() * 255, 0, 0
+  end)
+  noisetex = love.graphics.newImage(noisetex)
+  noisetex:setWrap ("repeat", "repeat")
+  noisetex:setFilter("nearest", "nearest")
 
-new = function(self)
-	self.canvas = love.graphics.newCanvas()
-	self.noisetex = love.image.newImageData(100,100)
-	self.noisetex:mapPixel(function()
-		local l = love.math.random() * 255
-		return l,l,l,l
-	end)
-	self.noisetex = love.graphics.newImage(self.noisetex)
-	self.noisetex:setWrap ("repeat", "repeat")
-	self.noisetex:setFilter("nearest", "nearest")
+  local shader = love.graphics.newShader[[
+    extern Image noisetex;
+    extern number amp;
+    extern vec2 center;
 
-	self.shader = love.graphics.newShader[[
-		extern number amp;
-		extern number screen_center_x;
-		extern number screen_center_y;
+    vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
+      vec2 displacement = Texel(noisetex, tc + center).rg;
+      tc += normalize(displacement * 2.0 - vec2(1.0)) * amp;
 
-		extern Image noisetex;
+      return Texel(texture, tc);
+    }]]
 
-		vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-		{
-			vec2 screen_center = vec2 (screen_center_x, screen_center_y);
-			vec4 noise;
+  shader:send("noisetex", noisetex)
 
-			noise = Texel (noisetex, texture_coords + screen_center);
-			noise = normalize (noise * 2.0 - vec4 (1.0, 1.0, 1.0, 1.0));
-			noise *= amp;
+  local setters = {}
+  setters.amp = function(v)
+    shader:send("amp", math.max(0, tonumber(v) or 0))
+  end
+  setters.center = function(v)
+    assert(type(v) == "table" and #v == 2, "Invalid value for `center'")
+    shader:send("center", v)
+  end
 
-			return Texel(texture, texture_coords + noise.xy);
-		}
-	]]
-	self.shader:send("amp", 0.001 )
-
-	-- Set the screen_center positions when the camera moves but the
-	-- noise texture should stay fixed in world coordinates to reduce
-	-- aliasing effects.
-	self.shader:send("screen_center_x",love.graphics.getWidth() * 0.5)
-	self.shader:send("screen_center_y",love.graphics.getHeight() * 0.5)
-
-	self.shader:send("noisetex", self.noisetex)
-end,
-
-draw = function(self, func, ...)
-	self:_apply_shader_to_scene(self.shader, self.canvas, func, ...)
-end,
-
-set = function(self, key, value)
-	if key == "amp" or key == "screen_center_x" or key == "screen_center_y" then
-		self.shader:send(key, math.max(0, tonumber(value) or 0))
-	else
-		error("Unknown property: " .. tostring(key))
-	end
-
-	return self
+  return shine.Effect{
+    shader = shader,
+    setters = setters,
+    defaults = {amp = .0007, center = {0,0}}
+  }
 end
-}
