@@ -36,7 +36,7 @@ return function(shine)
     shader:send("strength", math.max(0, math.min(1, tonumber(v) or 0)))
   end
 
-  local defaults = {color = {1.0,1.0,1.0,1.0}, strength = 0.5}
+  local defaults = {tint = {1.0,1.0,1.0,1.0}, strength = 0.5}
 
   return shine.Effect{shader = shader, setters = setters, defaults = defaults}
 end

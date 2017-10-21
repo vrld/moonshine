@@ -19,7 +19,7 @@ return function(shine)
   local shader = love.graphics.newShader[[
     extern vec3 grade_color;
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
-      return vec4(grade, 1.0f) * Texel(texture, tc) * color;
+      return vec4(grade_color, 1.0f) * Texel(texture, tc) * color;
     }]]
 
   local setters = {}

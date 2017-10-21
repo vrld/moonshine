@@ -103,32 +103,31 @@ end
 
 return function(shine)
   local shader = love.graphics.newShader[[
-    extern number value;
-    uniform vec3 palette[ 4 ];
+    extern vec3 palette[ 4 ];
 
     vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords) {
       vec4 pixel = Texel(texture, texture_coords);
       float avg = min(0.9999,max(0.0001,(pixel.r + pixel.g + pixel.b)/3));
       int index = int(avg*4);
-      return palette[index];
+      return vec4(palette[index], pixel.a);
     }]]
 
   local setters = {}
   setters.palette = function(v)
-    if type(value) == "number" and palettes[math.floor(value)] then -- Check if value is an index
-      palette = palettes[math.floor(value)]
-    elseif type(value) == "string" then -- Check if value is a named palette
-      palette = lookup_palette(value)
-    elseif type(value) == "table" then -- Check if value is a custom palette.
+    if type(v) == "number" and palettes[math.floor(v)] then -- Check if value is an index
+      palette = palettes[math.floor(v)]
+    elseif type(v) == "string" then -- Check if value is a named palette
+      palette = lookup_palette(v)
+    elseif type(v) == "table" then -- Check if value is a custom palette.
       -- Needs to match: {{R,G,B},{R,G,B},{R,G,B},{R,G,B}}
       local valid = true
       -- Table needs to have four indexes of tables
       for color_2bit = 1,4 do
-        if value[color_2bit] and type(value[color_2bit]) == "table" then
+        if v[color_2bit] and type(v[color_2bit]) == "table" then
           -- Table needs to have three indexes of floats 0..1
           for color_channel = 1,3 do
-            if value[color_2bit][color_channel] and type(value[color_2bit][color_channel]) == "number" then
-              if value[color_2bit][color_channel] < 0 or value[color_2bit][color_channel] > 1 then
+            if v[color_2bit][color_channel] and type(v[color_2bit][color_channel]) == "number" then
+              if v[color_2bit][color_channel] < 0 or v[color_2bit][color_channel] > 1 then
                 -- Number is not a float 0..1
                 valid = false
               end
@@ -143,12 +142,12 @@ return function(shine)
         end
       end
       -- Fall back on failure
-      palette = valid and {colors=value} or palettes[1]
+      palette = valid and {colors=v} or palettes[1]
     else
       -- Fall back to default
       palette = palettes[1]
     end
-    self.shader:send(key,unpack(palette.colors))
+    shader:send("palette", unpack(palette.colors))
   end
 
   return shine.Effect{

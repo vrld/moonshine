@@ -48,7 +48,7 @@ return function(shine)
     shader:send('radius', math.floor(radius_x + .5))
     shine.draw_shader(buffer, shader)
 
-    self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
+    shader:send('direction', {0, 1 / love.graphics.getHeight()})
     shader:send('radius', math.floor(radius_y + .5))
     shine.draw_shader(buffer, shader)
   end

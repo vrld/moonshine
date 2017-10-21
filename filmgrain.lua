@@ -16,7 +16,7 @@ PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
 return function(shine)
-  local noisetex = love.image.newImageData(100,100)
+  local noisetex = love.image.newImageData(256,256)
   noisetex:mapPixel(function()
     local l = love.math.random() * 255
     return l,l,l,l
@@ -24,31 +24,39 @@ return function(shine)
   noisetex = love.graphics.newImage(noisetex)
 
   local shader = love.graphics.newShader[[
-    extern number grainopacity;
-    extern number grainsize;
-    extern number noise;
+    extern number grain_opacity;
+    extern number grain_size;
+    extern vec2 noise;
     extern Image noisetex;
     extern vec2 tex_ratio;
 
     float rand(vec2 co) {
-      return Texel(noisetex, mod(co * tex_ratio / vec2(grainsize), vec2(1.0))).r;
+      return Texel(noisetex, mod(co * tex_ratio / vec2(grain_size), vec2(1.0))).r;
     }
 
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
-      return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), grainopacity);
+      return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), grain_opacity);
     }]]
 
-  shader:send("noise",0)
-  shader:send("noisetex", self.noisetex)
-  shader:send("tex_ratio", {love.graphics.getWidth() / self.noisetex:getWidth(),
-                            love.graphics.getHeight() / self.noisetex:getHeight()})
+  shader:send("noisetex", noisetex)
+  shader:send("tex_ratio", {love.graphics.getWidth() / noisetex:getWidth(),
+                            love.graphics.getHeight() / noisetex:getHeight()})
 
   local setters = {}
-  for _,k in ipairs{"grainopacity", "grainsize"} do
+  for _,k in ipairs{"grain_opacity", "grain_size"} do
     setters[k] = function(v) shader:send(k, math.max(0, tonumber(v) or 0)) end
   end
 
-  local defaults = {grainopacity = .3, grainsize = 1}
+  local defaults = {grain_opacity = .3, grain_size = 1}
 
-  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
+  local draw = function(buffer)
+    shader:send("noise", {love.math.random(), love.math.random()})
+    shine.draw_shader(buffer, shader)
+  end
+
+  return shine.Effect{
+    draw = draw,
+    setters = setters,
+    defaults = defaults
+  }
 end

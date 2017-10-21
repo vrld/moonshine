@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function()
+return function(shine)
   -- Barrel distortion adapted from Daniel Oaks (see commit cef01b67fd)
   -- Added feather to mask out outside of distorted texture
   local distortionFactor
@@ -44,7 +44,7 @@ return function()
   local setters = {}
 
   setters.distortionFactor = function(v)
-    assert(type(v) == "table" and #l == 2, "Invalid value for `distortionFactor'")
+    assert(type(v) == "table" and #v == 2, "Invalid value for `distortionFactor'")
     distortionFactor = {unpack(v)}
     shader:send("distortionFactor", v)
   end
@@ -67,7 +67,7 @@ return function()
   local defaults = {
     distortionFactor = {1.06, 1.065},
     feather = 0.02,
-    scale = 1,
+    scaleFactor = 1,
   }
 
   return shine.Effect{shader = shader, setters = setters, defaults = defaults}
