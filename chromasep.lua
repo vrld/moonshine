@@ -29,7 +29,7 @@ return function(shine)
 
   local angle, radius = 0, 0
   local setters = {
-    angle  = function(v) angle  = tonumber(v) or 0 end
+    angle  = function(v) angle  = tonumber(v) or 0 end,
     radius = function(v) radius = tonumber(v) or 0 end
   }
 
@@ -40,5 +40,9 @@ return function(shine)
     shine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{draw = draw, setters = setters}
+  return shine.Effect{
+    draw = draw,
+    setters = setters,
+    defaults = {angle = 0, radius = 0}
+  }
 end
