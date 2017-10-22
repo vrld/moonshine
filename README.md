@@ -1,67 +1,424 @@
-# shine
+# moonshine
 
-Postprocessing in LÖVE made easy as pi.
+Chainable post-processing shaders for LÖVE.
+
+## Overview
+
+* [Getting started](#getting-started)
+* [General usage](#general-usage)
+* [List of effects](#list-of-effects)
+* [Writing effects](#writing-effects)
+
+<a name="getting-started"></a>
+## Getting started
+
+Clone this repository into your game folder:
+
+   git clone https://github.com/vrld/moonshine.git
+
+This will create the folder `moonshine`.
+
+In your `main.lua`, or wherever you load your libraries, add the following:
+
+    local moonshine = require 'moonshine'
+
+Create and parametrize the post-processing effect in `love.load()`, for example:
+
+    function love.load()
+      effect = moonshine(moonshine.effects.filmgrain)
+                        .chain(moonshine.effects.vignette)
+      effect.filmgrain.size = 2
+    end
+
+Lastly, wrap the things you want to be drawn with the effect inside a function:
+
+    function love.draw()
+        effect(function()
+          love.graphics.rectangle("fill", 300,200, 200,200)
+        end)
+    end
+
+When you package your game for release, you might want consider deleting the
+(hidden) `.git` folder in the moonshine directory.
 
 
-## Usage:
+<a name="general-usage"></a>
+## General usage
 
-```lua
-local shine = require 'shine'
+The main concept behind moonshine are chains. A chain consists of one or more
+effects. Effects that come later in the chain will be applied to the result of
+the chain so far. In the example above, the vignette is drawn on top of the
+filmgrain.
 
-function love.load()
-    -- load the effects you want
-    local grain = shine.filmgrain()
-    
-    -- many effects can be parametrized
-    grain.opacity = 0.2
-    
-    -- multiple parameters can be set at once
-    local vignette = shine.vignette()
-    vignette.parameters = {radius = 0.9, opacity = 0.7}
-    
-    -- you can also provide parameters on effect construction
-    local desaturate = shine.desaturate{strength = 0.6, tint = {255,250,200}}
-    
-    -- you can chain multiple effects
-    post_effect = desaturate:chain(grain):chain(vignette)
+### Chains
 
-    -- warning - setting parameters affects all chained effects:
-    post_effect.opacity = 0.5 -- affects both vignette and film grain
+Chains are created using the `moonshine.chain` function:
 
-    -- more code here
-end
-    
-function love.draw()
-    -- wrap what you want to be post-processed in a function:
-    post_effect:draw(function()
-        draw()
-        my()
-        stuff()
+    chain = moonshine.chain(effect)
+
+For convenience, `moonshine(effect)` is an alias to `moonshine.chain(effect)`.
+You can add new effects to a chain using
+
+    chain = chain.chain(another_effect)
+
+or using `chain.next()`, which is an alias to `chain.chain()`.
+As the function returns the chain, you can specify your whole chain in one go,
+as shown in the example above.
+
+### Effects and effect parameters
+
+The effects that come bundled with moonshine (see [List of effects](#list-of-effects))
+are accessed by `chain.effects.<effect-name>`, e.g.,
+
+    moonshine.effects.glow
+
+Most effects are parametrized to change how they look. In the example above,
+the size of the grains was set to 2 pixels (the default is 1 pixel).
+Effect parameters are set by first specifying the name of the effect and then
+the name of the parameter:
+
+    chain.<effect>.<parameter> = <value>
+
+For example, if `chain` contained the `glow` and `crt` effects, you can set the
+glow `strength` parameter and crt `distortionFactor` parameter as such:
+
+    chain.glow.strength = 10
+    chain.crt.distortionFactor = {1.06, 1.065}
+
+Because you likely initialize a bunch of parameters at once, you can set all
+parameters with the special key `parameters` (or `params` or `settings`). This
+is equivalent to the above:
+
+    chain.parameters = {
+      glow = {strenght = 10},
+      crt = {distortionFactor = {1.06, 1.065},
+    }
+
+Note that this will only set the parameters specified in the table. The crt
+parameter `feather`, for example, will be left untouched.
+
+### Drawing effects
+
+Creating effects and setting parameters is fine, but not very useful on its
+own. You also need to apply it to something. This is done using `chain.draw()`:
+
+    chain.draw(func, ...)
+
+This will apply the effect to everything that is drawn inside `func(...)`.
+Everything that is drawn outside of `func(...)` will not be affected. For
+example,
+
+    love.graphics.draw(img1, 0,0)
+    chain.draw(function()
+      love.graphics.draw(img2, 200,0)
     end)
-    
-    -- alternative syntax:
-    -- post_effect(function()
-    --     draw()
-    --     my()
-    --     stuff()
-    -- end)
-    
-    -- everything you draw here will not be affected by the effect
-end
-```
+    love.graphics.draw(img3, 400,0)
 
-## Documentation:
+will apply the effect to `img2`, but not to `img1` and `img3`. Note that some
+effects (like filmgrain) draw on the whole screen. So if in this example `chain`
+would consist of a gaussianblur and filmgrain effect, `img1` will be covered
+with grain, but will not be blurred, `img2` will get both effects, and `img3`
+will be left untouched.
 
-A full documentation including all included effects can be found in the [wiki](https://github.com/vrld/shine/wiki).
+Similar to chain creation, `chain(func, ...)` is an alias to the more verbose
+`chain.draw(func, ...)`.
+
+### Is this efficient?
+
+Of course, using moonshine is not as efficient as writing your own shader that
+does all the effects you want in the least amount of passes, but moonshine
+tries to minimize the overhead.
+
+On the other hand, you don't waste time writing the same shader over and over
+again when using moonshine: You're trading a small amount of computation time
+for a large amount of development time.
 
 
-## Add your own effects:
+<a name="list-of-effects"></a>
+## List of effects
 
-Easy: create a new file that returns a table with:
+Currently, moonshine contains the following effects (in alphabetical order):
 
- * a table `requires` that names the required graphics capabilities (shader, canvas, ...),
- * a function  `new(self)` that initialized the effect (creates canvas, shaders, ...),
- * a function `draw(self, func)` that applies the effect, and
- * a function `set(self, key, value)` to set parameters of the effect.
+* [boxblur](#effect-boxblur): simple blurring
+* [chromasep](#effect-chromasep): cheap/fake chromatic aberration
+* [colorgradesimple](#effect-colorgradesimple): weighting of color channels
+* [crt](#effect-crt): crt/barrel distortion
+* [desaturate](#effect-desaturate): desaturation and tinting
+* [dmg](#effect-dmg): Gameboy and other four color palettes
+* [fastgaussianblur](#effect-fastgaussianblur): faster Gaussian blurring
+* [filmgrain](#effect-filmgrain): image noise
+* [gaussianblur](#effect-gaussianblur): Gaussian blurring
+* [glow](#effect-glow): aka (light bloom
+* [godsray](#effect-godsray): aka light scattering
+* [pixelate](#effect-pixelate): sub-sampling (for that indie look)
+* [posterize](#effect-posterize): restrict number of colors
+* [scanlines](#effect-scanlines): horizontal lines
+* [sketch](#effect-sketch): simulate pencil drawings
+* [vignette](#effect-vignette): shadow in the corners
 
-See the [wiki](https://github.com/vrld/shine/wiki) for more information.
+<a name="effect-boxblur"></a>
+### boxblur
+
+    moonshine.effects.boxblur
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+radius | number or table of numbers | {3,3}
+radius_x | number | 3
+radius_y | number | 3
+
+
+<a name="effect-chromasep"></a>
+### chromasep
+
+    moonshine.effects.chromasep
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+angle | number (in radians) | 0
+radius | number | 0
+
+
+<a name="effect-colorgradesimple"></a>
+### colorgradesimple
+
+    moonshine.effects.colorgradesimple
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+factors | table of numbers | {1,1,1}
+
+
+<a name="effect-crt"></a>
+### crt
+
+    moonshine.effects.crt
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+distortionFactor | table of numbers | {1.06, 1.065}
+x | number | 1.06
+y | number | 1.065
+scaleFactor | number or table of numbers | {1,1}
+feather | number | 0.02
+
+
+<a name="effect-desaturate"></a>
+### desaturate
+
+    moonshine.effects.desaturate
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+tint | color / table of numbers | {255,255,255}
+strength | number between 0 and 1 | 0.5
+
+
+<a name="effect-dmg"></a>
+### dmg
+
+    moonshine.effects.dmg
+
+Name | Type | Default
+-----|------|--------
+palette | number or string or table of table of numbers | "default"
+
+DMG ships with 7 palettes:
+
+1. `default`
+2. `dark_yellow`
+3. `light_yellow`
+4. `green`
+5. `greyscale`
+6. `stark_bw`
+7. `pocket`
+
+Custom palettes must be in the format `{{R,G,B}, {R,G,B}, {R,G,B}, {R,G,B}}`,
+where `R`, `G`, and `B` are numbers between `0` and `255`.
+
+
+<a name="effect-fastgaussianblur"></a>
+### fastgaussianblur
+
+    moonshine.effects.fastgaussianblur
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+taps | odd number >= 3 | 7 | (amount of blur)
+offset | number | 1
+sigma | number | -1
+
+
+<a name="effect-filmgrain"></a>
+### filmgrain
+
+    moonshine.effects.filmgrain
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+opacity | number | 0.3
+size | number | 1
+
+
+<a name="effect-gaussianblur"></a>
+### gaussianblur
+
+    moonshine.effects.gaussianblur
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+sigma | number | 1 | (amount of blur)
+
+
+<a name="effect-glow"></a>
+### glow
+
+    moonshine.effects.glow
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+min_luma | number between 0 and 1 | 0.7
+strength | number >= 0 | 5
+
+
+<a name="effect-godsray"></a>
+### godsray
+
+    moonshine.effects.godsray
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+exposire | number between 0 and 1 | 0.5
+decay | number between 0 and 1 | 0.95
+density | number between 0 and 1 | 0.05
+weight | number between 0 and 1 | 0.5
+light_position | table of two numbers | {0.5, 0.5}
+light_x | number | 0.5
+light_y | number | 0.5
+samples | number >= 1 | 70
+
+
+<a name="effect-pixelate"></a>
+### pixelate
+
+    moonshine.effects.pixelate
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+size | number or table of two numbers | {5,5}
+feedback | number between 0 and 1 | 0
+
+
+<a name="effect-posterize"></a>
+### posterize
+
+    moonshine.effects.posterize
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+num_bands | number >= 1 | 3
+
+
+<a name="effect-scanlines"></a>
+### scanlines
+
+    moonshine.effects.scanlines
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+width | number | 1
+frequency | number | screen-height / 1
+phase | number | 0
+thickness | number | 1
+opacity | number | 1
+color | color / table of numbers | {0,0,0}
+
+
+<a name="effect-sketch"></a>
+### sketch
+
+    moonshine.effects.sketch
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+amp | number | 0.0007
+center | table of numbers | {0,0}
+
+
+<a name="effect-vignette"></a>
+### vignette
+
+    moonshine.effects.vignette
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+radius | number > 0 | 0.8
+softness | number > 0 | 0.5
+opacity | number > 0 | 0.5
+color | color / table of numbers | {0,0,0}
+
+
+
+<a name="writing-effects"></a>
+## Writing effects
+
+**Under construction**
+
+An effect is essentially a function that returns a `moonshine.Effect{}`, which
+must specify at least a `name` and a `shader` or a `draw` function.
+
+It may also specify a `setters` table that contains functions that set the
+effect parameters and a `defaults` table with the corresponding default values.
+The default values will be set when the effect is instantiated.
+
+A good starting point to see how to write effects is the `colorgradesimple`
+effect, which uses the `shader`, `setters` and `defaults` fields.
+
+Moonshine uses double buffering to draw the effects. A function to swap and
+access the buffers is provided to the `draw(buffer)` function of your effect:
+
+    front, back = buffer() -- swaps front and back buffer and returns both
+
+You don't have to care about canvases or restoring defaults, moonshine handles
+all that for you.
+
+If you only need a custom draw function because your effect needs multiple
+shader passes, moonshine provides the `draw_shader(buffer, shader)` function.
+As you might have guessed, this function uses `shader` to draw the front buffer
+to the back buffer. The `boxblur` effect gives a simple example how to use this
+function.
+
+If for some reason you need more than two buffer, you are more or less on your
+own. You can do everything, but make sure that the blend mode and the order of
+back and front buffer is the same before and after your custom `draw` function.
+The `glow` effect gives an example of a more complicated `draw` function.
