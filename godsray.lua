@@ -36,7 +36,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern number exposure;
     extern number decay;
@@ -96,7 +96,7 @@ return function(shine)
     samples = 70
   }
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "godsray",
     shader = shader,
     setters = setters,

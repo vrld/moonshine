@@ -18,7 +18,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern number num_bands;
     vec3 rgb2hsv(vec3 c)
@@ -46,7 +46,7 @@ return function(shine)
       return vec4(hsv2rgb(hsv), color.a);
     }]]
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "posterize",
     shader = shader,
     setters = {

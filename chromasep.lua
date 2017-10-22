@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern vec2 direction;
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
@@ -37,10 +37,10 @@ return function(shine)
     local dx = math.cos(angle) * radius / love.graphics.getWidth()
     local dy = math.sin(angle) * radius / love.graphics.getHeight()
     shader:send("direction", {dx,dy})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "chromasep",
     draw = draw,
     setters = setters,

@@ -118,7 +118,7 @@ local is_valid_palette = function(v)
   return true
 end
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern vec3 palette[ 4 ];
 
@@ -144,7 +144,7 @@ return function(shine)
                            palette.colors[3], palette.colors[4], {})
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "dmg",
     shader = shader,
     setters = setters,

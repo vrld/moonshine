@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local noisetex = love.image.newImageData(256,256)
   noisetex:mapPixel(function()
     return love.math.random() * 255,love.math.random() * 255, 0, 0
@@ -55,7 +55,7 @@ return function(shine)
     shader:send("center", v)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "sketch",
     shader = shader,
     setters = setters,

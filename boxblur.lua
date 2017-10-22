@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local radius_x, radius_y = 3, 3
   local shader = love.graphics.newShader[[
     extern vec2 direction;
@@ -46,14 +46,14 @@ return function(shine)
   local draw = function(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
     shader:send('radius', math.floor(radius_x + .5))
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
 
     shader:send('direction', {0, 1 / love.graphics.getHeight()})
     shader:send('radius', math.floor(radius_y + .5))
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "boxblur",
     draw = draw,
     setters = setters,

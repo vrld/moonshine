@@ -24,9 +24,9 @@ SOFTWARE.
 
 local BASE = ...
 
-local shine = {}
+local moonshine = {}
 
-shine.draw_shader = function(buffer, shader)
+moonshine.draw_shader = function(buffer, shader)
   front, back = buffer()
   love.graphics.setCanvas(front)
   love.graphics.clear()
@@ -36,7 +36,7 @@ shine.draw_shader = function(buffer, shader)
   love.graphics.draw(back)
 end
 
-shine.chain = function(effect)
+moonshine.chain = function(effect)
   local front, back = love.graphics.newCanvas(), love.graphics.newCanvas()
   local buffer = function()
     back, front = front, back
@@ -63,7 +63,7 @@ shine.chain = function(effect)
     love.graphics.setColor(color)
     love.graphics.setBlendMode("alpha", "premultiplied")
     for _,e in ipairs(chain) do
-      (e.draw or shine.draw_shader)(buffer, e.shader)
+      (e.draw or moonshine.draw_shader)(buffer, e.shader)
     end
 
     -- present result
@@ -111,7 +111,7 @@ shine.chain = function(effect)
   return chain.next(effect)
 end
 
-shine.Effect = function(e)
+moonshine.Effect = function(e)
   -- set defaults
   for k,v in pairs(e.defaults or {}) do
     assert(e.setters[k], ("No setter for parameter `%s'"):format(k))(v, k)
@@ -127,18 +127,18 @@ shine.Effect = function(e)
 end
 
 -- autoloading effects
-shine.effects = setmetatable({}, {__index = function(self, key)
+moonshine.effects = setmetatable({}, {__index = function(self, key)
   local ok, effect = pcall(require, BASE .. "." .. key)
   if not ok then
     error("No such effect: "..key, 2)
   end
 
-  -- expose shine to effect
-  local con = function(...) return effect(shine, ...) end
+  -- expose moonshine to effect
+  local con = function(...) return effect(moonshine, ...) end
 
   -- cache effect constructor
   self[key] = con
   return con
 end})
 
-return shine
+return setmetatable(moonshine, {__call = function(_, ...) return moonshine.chain(...) end})
