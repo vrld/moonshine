@@ -97,7 +97,7 @@ new = function(self)
 	self.shader:send("pixel_size", self._pixel_size)
 	self.shader:send("opacity", self._opacity)
 	self.shader:send("center_fade", self._center_fade)
-	self.shader:send("scanline_height", self._line_height)
+	self.shader:send("line_height", self._line_height)
 end,
 
 draw = function(self, func, ...)
