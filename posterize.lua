@@ -3,6 +3,9 @@ Public domain:
 
 Copyright (C) 2017 by Matthias Richter <vrld@vrld.org>
 
+shader based on code by sam hocevar, see
+https://gamedev.stackexchange.com/questions/59797/glsl-shader-change-hue-saturation-brightness
+
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted.
 
@@ -39,7 +42,7 @@ return function(shine)
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
     {
       color = Texel(texture, tc);
-      vec3 hsv = floor((rgb2hsv(color.rgb) * num_bands) + 0.5) / num_bands;
+      vec3 hsv = floor((rgb2hsv(color.rgb) * num_bands) + vec3(0.5)) / num_bands;
       return vec4(hsv2rgb(hsv), color.a);
     }]]
 
