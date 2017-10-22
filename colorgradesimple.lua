@@ -17,16 +17,17 @@ PERFORMANCE OF THIS SOFTWARE.
 
 return function(shine)
   local shader = love.graphics.newShader[[
-    extern vec3 grade_color;
+    extern vec3 factors;
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
-      return vec4(grade_color, 1.0f) * Texel(texture, tc) * color;
+      return vec4(factors, 1.0f) * Texel(texture, tc) * color;
     }]]
 
   local setters = {}
 
   return shine.Effect{
+    name = "colorgradesimple",
     shader = shader,
-    setters = {grade_color = function(v) shader:send("grade_color", v) end},
-    defaults = {grade_color = {1,1,1}}
+    setters = {factors = function(v) shader:send("factors", v) end},
+    defaults = {factors = {1,1,1}}
   }
 end

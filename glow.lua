@@ -51,7 +51,7 @@ return function(shine)
     }]]
 
   local setters = {}
-  setters.glow_strength = function(v)
+  setters.strength = function(v)
     blurshader = make_blur_shader(math.max(0,tonumber(v) or 1))
   end
   setters.min_luma = function(v)
@@ -96,8 +96,9 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "glow",
     draw = draw,
     setters = setters,
-    defaults = {min_luma=.7, glow_strength = 5}
+    defaults = {min_luma=.7, strength = 5}
   }
 end

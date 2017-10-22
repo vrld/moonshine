@@ -80,6 +80,7 @@ shine.chain = function(effect)
     if type(e) == "function" then
       e = e()
     end
+    assert(e.name, "Invalid effect: must provide `name'.")
     assert(e.shader or e.draw, "Invalid effect: must provide `shader' or `draw'.")
     table.insert(chain, e)
     return chain
@@ -88,12 +89,22 @@ shine.chain = function(effect)
 
   setmetatable(chain, {
     __call = function(_, ...) return chain.draw(...) end,
-    __newindex = function(_,k,v)
-      -- if k == "parameters" and type(v) == "table" then for k,v in (v) do _[k]=v end end
+    __index = function(_,k)
       for _, e in ipairs(chain) do
-        if e.setters[k] then return e.setters[k](v, k) end
+        if e.name == k then return e end
       end
-      error(("Unknown property: %q"):format(k), 2)
+      error(("Effect `%s' not in chain"):format(k), 2)
+    end,
+    __newindex = function(_, k, v)
+      if k == "parameters" or k == "params" or k == "settings" then
+        for e,par in pairs(v) do
+          for k,v in pairs(par) do
+            chain[e][k] = v
+          end
+        end
+      else
+        rawset(chain, k, v)
+      end
     end
   })
 
@@ -110,7 +121,7 @@ shine.Effect = function(e)
   -- expose setters
   return setmetatable(e, {
     __newindex = function(self,k,v)
-      assert(self.setters[k], ("Unknown property: %q"):format(k))
+      assert(self.setters[k], ("Unknown property: `%s.%s'"):format(e.name, k))
       self.setters[k](v, k)
     end})
 end

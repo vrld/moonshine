@@ -96,5 +96,10 @@ return function(shine)
     samples = 70
   }
 
-  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
+  return shine.Effect{
+    name = "godsray",
+    shader = shader,
+    setters = setters,
+    defaults = defaults
+  }
 end

@@ -56,6 +56,7 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "sketch",
     shader = shader,
     setters = setters,
     defaults = {amp = .0007, center = {0,0}}

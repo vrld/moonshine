@@ -70,5 +70,10 @@ return function(shine)
     scaleFactor = 1,
   }
 
-  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
+  return shine.Effect{
+    name = "crt",
+    shader = shader,
+    setters = setters,
+    defaults = defaults
+  }
 end
