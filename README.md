@@ -14,7 +14,7 @@ Chainable post-processing shaders for LÖVE.
 
 Clone this repository into your game folder:
 
-   git clone https://github.com/vrld/moonshine.git
+    git clone https://github.com/vrld/moonshine.git
 
 This will create the folder `moonshine`.
 
@@ -47,8 +47,8 @@ When you package your game for release, you might want consider deleting the
 
 The main concept behind moonshine are chains. A chain consists of one or more
 effects. Effects that come later in the chain will be applied to the result of
-the chain so far. In the example above, the vignette is drawn on top of the
-filmgrain.
+the effects that come before. In the example above, the vignette is drawn on
+top of the filmgrain.
 
 ### Chains
 
@@ -156,8 +156,8 @@ Currently, moonshine contains the following effects (in alphabetical order):
 * [sketch](#effect-sketch): simulate pencil drawings
 * [vignette](#effect-vignette): shadow in the corners
 
+
 <a name="effect-boxblur"></a>
-### boxblur
 
     moonshine.effects.boxblur
 
@@ -171,7 +171,6 @@ radius_y | number | 3
 
 
 <a name="effect-chromasep"></a>
-### chromasep
 
     moonshine.effects.chromasep
 
@@ -184,7 +183,6 @@ radius | number | 0
 
 
 <a name="effect-colorgradesimple"></a>
-### colorgradesimple
 
     moonshine.effects.colorgradesimple
 
@@ -196,7 +194,6 @@ factors | table of numbers | {1,1,1}
 
 
 <a name="effect-crt"></a>
-### crt
 
     moonshine.effects.crt
 
@@ -212,7 +209,6 @@ feather | number | 0.02
 
 
 <a name="effect-desaturate"></a>
-### desaturate
 
     moonshine.effects.desaturate
 
@@ -225,7 +221,6 @@ strength | number between 0 and 1 | 0.5
 
 
 <a name="effect-dmg"></a>
-### dmg
 
     moonshine.effects.dmg
 
@@ -248,7 +243,6 @@ where `R`, `G`, and `B` are numbers between `0` and `255`.
 
 
 <a name="effect-fastgaussianblur"></a>
-### fastgaussianblur
 
     moonshine.effects.fastgaussianblur
 
@@ -262,7 +256,6 @@ sigma | number | -1
 
 
 <a name="effect-filmgrain"></a>
-### filmgrain
 
     moonshine.effects.filmgrain
 
@@ -275,7 +268,6 @@ size | number | 1
 
 
 <a name="effect-gaussianblur"></a>
-### gaussianblur
 
     moonshine.effects.gaussianblur
 
@@ -287,7 +279,6 @@ sigma | number | 1 | (amount of blur)
 
 
 <a name="effect-glow"></a>
-### glow
 
     moonshine.effects.glow
 
@@ -300,7 +291,6 @@ strength | number >= 0 | 5
 
 
 <a name="effect-godsray"></a>
-### godsray
 
     moonshine.effects.godsray
 
@@ -319,7 +309,6 @@ samples | number >= 1 | 70
 
 
 <a name="effect-pixelate"></a>
-### pixelate
 
     moonshine.effects.pixelate
 
@@ -332,7 +321,6 @@ feedback | number between 0 and 1 | 0
 
 
 <a name="effect-posterize"></a>
-### posterize
 
     moonshine.effects.posterize
 
@@ -344,7 +332,6 @@ num_bands | number >= 1 | 3
 
 
 <a name="effect-scanlines"></a>
-### scanlines
 
     moonshine.effects.scanlines
 
@@ -361,7 +348,6 @@ color | color / table of numbers | {0,0,0}
 
 
 <a name="effect-sketch"></a>
-### sketch
 
     moonshine.effects.sketch
 
@@ -374,7 +360,6 @@ center | table of numbers | {0,0}
 
 
 <a name="effect-vignette"></a>
-### vignette
 
     moonshine.effects.vignette
 
