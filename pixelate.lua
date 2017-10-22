@@ -17,14 +17,14 @@ PERFORMANCE OF THIS SOFTWARE.
 
 return function(shine)
   local shader = love.graphics.newShader[[
-    extern vec2 pixel_size;
+    extern vec2 size;
     extern number feedback;
     vec4 effect(vec4 color, Image tex, vec2 tc, vec2 _)
     {
       vec4 c = Texel(tex, tc);
 
       // average pixel color over 5 samples
-      vec2 scale = love_ScreenSize.xy / pixel_size;
+      vec2 scale = love_ScreenSize.xy / size;
       tc = floor(tc * scale + vec2(.5));
       vec4 meanc = Texel(tex, tc/scale);
       meanc += Texel(tex, (tc+vec2( 1.0,  .0))/scale);
@@ -37,17 +37,19 @@ return function(shine)
   ]]
 
   local setters = {}
-  setters.pixel_size = function(v)
-    assert(type(v) == "table" and #v == 2, "Invalid value for `pixel_size'")
-    shader:send("pixel_size", v)
+  setters.size = function(v)
+    if type(v) == "number" then v = {v,v} end
+    assert(type(v) == "table" and #v == 2, "Invalid value for `size'")
+    shader:send("size", v)
   end
   setters.feedback = function(v)
     shader:send("feedback", math.min(1, math.max(0, tonumber(v) or 0)))
   end
 
   return shine.Effect{
+    name = "pixelate",
     shader = shader,
     setters = setters,
-    defaults = {pixel_size = {5,5}, feedback = 0}
+    defaults = {size = {5,5}, feedback = 0}
   }
 end

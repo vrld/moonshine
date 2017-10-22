@@ -17,29 +17,26 @@ PERFORMANCE OF THIS SOFTWARE.
 
 return function(shine)
   local shader = love.graphics.newShader[[
-    extern number vignette_radius;
-    extern number vignette_softness;
-    extern number vignette_opacity;
-    extern vec4 vignette_color;
+    extern number radius;
+    extern number softness;
+    extern number opacity;
+    extern vec4 color;
 
-    vec4 effect(vec4 color, Image tex, vec2 tc, vec2 _)
+    vec4 effect(vec4 c, Image tex, vec2 tc, vec2 _)
     {
-      color = Texel(tex, tc);
-
       number aspect = love_ScreenSize.x / love_ScreenSize.y;
-      number v = 1.0 - smoothstep(vignette_radius, vignette_radius-vignette_softness,
+      number v = 1.0 - smoothstep(radius, radius-softness,
                                   length((tc - vec2(0.5f)) * aspect));
-      return mix(color, vignette_color, v*vignette_opacity);
+      return mix(Texel(tex, tc), color, v*opacity);
     }]]
 
   local setters = {}
   for _,k in ipairs{"radius", "softness", "opacity"} do
-    k = "vignette_"..k
     setters[k] = function(v) shader:send(k, math.max(0, tonumber(v) or 0)) end
   end
-  setters.vignette_color = function(c)
-    assert(type(c) == "table" and #c == 3, "Invalid value for `vignette_color'")
-    shader:send("vignette_color", {
+  setters.color = function(c)
+    assert(type(c) == "table" and #c == 3, "Invalid value for `color'")
+    shader:send("color", {
       (tonumber(c[1]) or 0) / 255,
       (tonumber(c[2]) or 0) / 255,
       (tonumber(c[3]) or 0) / 255,
@@ -48,13 +45,14 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "vignette",
     shader = shader,
     setters = setters,
     defaults = {
-      vignette_radius = .8,
-      vignette_softness = .5,
-      vignette_opacity = .5,
-      vignette_color = {0,0,0}
+      radius = .8,
+      softness = .5,
+      opacity = .5,
+      color = {0,0,0}
     }
   }
 end

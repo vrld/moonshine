@@ -31,10 +31,12 @@ local function resetShader(sigma)
 end
 
 return function(shine)
-  local shader = resetShader(1)
+  local shader
 
   local setters = {}
-  setters.sigma = function(v) shader = resetShader(math.max(0,tonumber(v) or 1)) end
+  setters.sigma = function(v)
+    shader = resetShader(math.max(0,tonumber(v) or 1))
+  end
 
   local draw = function(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
@@ -44,5 +46,10 @@ return function(shine)
     shine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{draw = draw, setters = setters}
+  return shine.Effect{
+    name = "gaussianblur",
+    draw = draw,
+    setters = setters,
+    defaults = {sigma = 1},
+  }
 end

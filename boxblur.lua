@@ -54,6 +54,7 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "boxblur",
     draw = draw,
     setters = setters,
     defaults = {radius = 3}

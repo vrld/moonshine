@@ -24,18 +24,18 @@ return function(shine)
   noisetex = love.graphics.newImage(noisetex)
 
   local shader = love.graphics.newShader[[
-    extern number grain_opacity;
-    extern number grain_size;
+    extern number opacity;
+    extern number size;
     extern vec2 noise;
     extern Image noisetex;
     extern vec2 tex_ratio;
 
     float rand(vec2 co) {
-      return Texel(noisetex, mod(co * tex_ratio / vec2(grain_size), vec2(1.0))).r;
+      return Texel(noisetex, mod(co * tex_ratio / vec2(size), vec2(1.0))).r;
     }
 
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
-      return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), grain_opacity);
+      return color * Texel(texture, tc) * mix(1.0, rand(tc+vec2(noise)), opacity);
     }]]
 
   shader:send("noisetex", noisetex)
@@ -43,11 +43,11 @@ return function(shine)
                             love.graphics.getHeight() / noisetex:getHeight()})
 
   local setters = {}
-  for _,k in ipairs{"grain_opacity", "grain_size"} do
+  for _,k in ipairs{"opacity", "size"} do
     setters[k] = function(v) shader:send(k, math.max(0, tonumber(v) or 0)) end
   end
 
-  local defaults = {grain_opacity = .3, grain_size = 1}
+  local defaults = {opacity = .3, size = 1}
 
   local draw = function(buffer)
     shader:send("noise", {love.math.random(), love.math.random()})
@@ -55,6 +55,7 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "filmgrain",
     draw = draw,
     setters = setters,
     defaults = defaults

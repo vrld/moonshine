@@ -115,6 +115,7 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "fastgaussianblur",
     draw = draw,
     setters = setters,
     -- no defaults here, as we dont want the shader to be built 3 times on startup

@@ -41,6 +41,7 @@ return function(shine)
   end
 
   return shine.Effect{
+    name = "chromasep",
     draw = draw,
     setters = setters,
     defaults = {angle = 0, radius = 0}

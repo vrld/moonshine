@@ -38,5 +38,10 @@ return function(shine)
 
   local defaults = {tint = {1.0,1.0,1.0,1.0}, strength = 0.5}
 
-  return shine.Effect{shader = shader, setters = setters, defaults = defaults}
+  return shine.Effect{
+    name = "desaturate",
+    shader = shader,
+    setters = setters,
+    defaults = defaults
+  }
 end

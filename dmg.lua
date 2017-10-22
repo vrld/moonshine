@@ -101,6 +101,23 @@ local lookup_palette = function(name)
   end
 end
 
+local is_valid_palette = function(v)
+  -- Needs to match: {{R,G,B},{R,G,B},{R,G,B},{R,G,B}}
+  if #v ~= 4 then return false end
+
+  for i = 1,4 do
+    if type(v[i]) ~= "table" or #v[i] ~= 3 then return false end
+    for c = 1,3 do
+      if type(v[i][c]) ~= "number" then return false end
+      local x = v[i][c]
+      if x > 1 then x = x / 255 end
+      if x < 0 or x > 1 then return false end
+      v[i][c] = x
+    end
+  end
+  return true
+end
+
 return function(shine)
   local shader = love.graphics.newShader[[
     extern vec3 palette[ 4 ];
@@ -114,43 +131,21 @@ return function(shine)
 
   local setters = {}
   setters.palette = function(v)
-    if type(v) == "number" and palettes[math.floor(v)] then -- Check if value is an index
+    if type(v) == "number" and palettes[math.floor(v)] then -- indexed palette
       palette = palettes[math.floor(v)]
-    elseif type(v) == "string" then -- Check if value is a named palette
+    elseif type(v) == "string" then -- named palette
       palette = lookup_palette(v)
-    elseif type(v) == "table" then -- Check if value is a custom palette.
-      -- Needs to match: {{R,G,B},{R,G,B},{R,G,B},{R,G,B}}
-      local valid = true
-      -- Table needs to have four indexes of tables
-      for color_2bit = 1,4 do
-        if type(v[color_2bit]) == "table" then
-          -- Table needs to have three indexes of floats 0..1
-          for color_channel = 1,3 do
-            if type(v[color_2bit][color_channel]) == "number" then
-              if v[color_2bit][color_channel] < 0 or v[color_2bit][color_channel] > 1 then
-                -- Number is not a float 0..1
-                valid = false
-              end
-            else
-              -- Table does not have three indexes of numbers
-              valid = false
-            end
-          end
-        else
-          -- Table does not have four indexes of tables
-          valid = false
-        end
-      end
-      -- Fall back on failure
-      palette = valid and {colors=v} or palettes[1]
-    else
-      -- Fall back to default
+    elseif type(v) == "table" and is_valid_palette(v) then -- custom palette
+      palette = {colors=v}
+    else -- Fall back to default
       palette = palettes[1]
     end
-    shader:send("palette", unpack(palette.colors))
+    shader:send("palette", palette.colors[1], palette.colors[2],
+                           palette.colors[3], palette.colors[4], {})
   end
 
   return shine.Effect{
+    name = "dmg",
     shader = shader,
     setters = setters,
     defaults = {palette = "default"}

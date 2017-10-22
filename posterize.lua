@@ -47,6 +47,7 @@ return function(shine)
     }]]
 
   return shine.Effect{
+    name = "posterize",
     shader = shader,
     setters = {
       num_bands = function(v)
