@@ -123,10 +123,10 @@ return function(shine)
       local valid = true
       -- Table needs to have four indexes of tables
       for color_2bit = 1,4 do
-        if v[color_2bit] and type(v[color_2bit]) == "table" then
+        if type(v[color_2bit]) == "table" then
           -- Table needs to have three indexes of floats 0..1
           for color_channel = 1,3 do
-            if v[color_2bit][color_channel] and type(v[color_2bit][color_channel]) == "number" then
+            if type(v[color_2bit][color_channel]) == "number" then
               if v[color_2bit][color_channel] < 0 or v[color_2bit][color_channel] > 1 then
                 -- Number is not a float 0..1
                 valid = false
