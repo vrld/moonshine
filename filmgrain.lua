@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local noisetex = love.image.newImageData(256,256)
   noisetex:mapPixel(function()
     local l = love.math.random() * 255
@@ -51,10 +51,10 @@ return function(shine)
 
   local draw = function(buffer)
     shader:send("noise", {love.math.random(), love.math.random()})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "filmgrain",
     draw = draw,
     setters = setters,

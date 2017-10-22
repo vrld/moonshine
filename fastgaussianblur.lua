@@ -2,7 +2,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2017 Tim Moore
-Adapted for new shine API by Matthias Richter
+Adapted for new moonshine API by Matthias Richter
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -84,16 +84,16 @@ local function build_shader(taps, offset, sigma)
   return love.graphics.newShader(shader)
 end
 
-return function(shine)
+return function(moonshine)
   local taps, offset, sigma = 7, 1, -1
   local shader = build_shader(taps, offset, sigma)
 
   local function draw(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
 
     shader:send('direction', {0, 1 / love.graphics.getHeight()})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
   end
 
   local setters = {}
@@ -114,7 +114,7 @@ return function(shine)
     shader = build_shader(taps, offset, sigma)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "fastgaussianblur",
     draw = draw,
     setters = setters,

@@ -30,7 +30,7 @@ local function resetShader(sigma)
   return love.graphics.newShader(table.concat(code))
 end
 
-return function(shine)
+return function(moonshine)
   local shader
 
   local setters = {}
@@ -40,13 +40,13 @@ return function(shine)
 
   local draw = function(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
 
     shader:send('direction', {0, 1 / love.graphics.getHeight()})
-    shine.draw_shader(buffer, shader)
+    moonshine.draw_shader(buffer, shader)
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "gaussianblur",
     draw = draw,
     setters = setters,

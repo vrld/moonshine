@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern vec3 factors;
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _) {
@@ -24,7 +24,7 @@ return function(shine)
 
   local setters = {}
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "colorgradesimple",
     shader = shader,
     setters = {factors = function(v) shader:send("factors", v) end},

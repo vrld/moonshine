@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern vec2 size;
     extern number feedback;
@@ -46,7 +46,7 @@ return function(shine)
     shader:send("feedback", math.min(1, math.max(0, tonumber(v) or 0)))
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "pixelate",
     shader = shader,
     setters = setters,

@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern number frequency;
     extern number phase;
@@ -65,7 +65,7 @@ return function(shine)
     })
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "scanlines",
     shader = shader,
     setters = setters,

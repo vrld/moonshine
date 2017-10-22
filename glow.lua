@@ -40,7 +40,7 @@ local function make_blur_shader(sigma)
   return love.graphics.newShader(table.concat(code))
 end
 
-return function(shine)
+return function(moonshine)
   local blurshader -- set in setters.glow_strength
   local threshold = love.graphics.newShader[[
     extern number min_luma;
@@ -95,7 +95,7 @@ return function(shine)
     scene = back
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "glow",
     draw = draw,
     setters = setters,

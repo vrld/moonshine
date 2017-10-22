@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   -- Barrel distortion adapted from Daniel Oaks (see commit cef01b67fd)
   -- Added feather to mask out outside of distorted texture
   local distortionFactor
@@ -70,7 +70,7 @@ return function(shine)
     scaleFactor = 1,
   }
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "crt",
     shader = shader,
     setters = setters,

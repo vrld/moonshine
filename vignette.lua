@@ -15,7 +15,7 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
-return function(shine)
+return function(moonshine)
   local shader = love.graphics.newShader[[
     extern number radius;
     extern number softness;
@@ -44,7 +44,7 @@ return function(shine)
     })
   end
 
-  return shine.Effect{
+  return moonshine.Effect{
     name = "vignette",
     shader = shader,
     setters = setters,
