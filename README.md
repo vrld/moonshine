@@ -20,23 +20,29 @@ This will create the folder `moonshine`.
 
 In your `main.lua`, or wherever you load your libraries, add the following:
 
-    local moonshine = require 'moonshine'
+```lua
+local moonshine = require 'moonshine'
+```
 
 Create and parametrize the post-processing effect in `love.load()`, for example:
 
-    function love.load()
-      effect = moonshine(moonshine.effects.filmgrain)
-                        .chain(moonshine.effects.vignette)
-      effect.filmgrain.size = 2
-    end
+```lua
+function love.load()
+  effect = moonshine(moonshine.effects.filmgrain)
+                    .chain(moonshine.effects.vignette)
+  effect.filmgrain.size = 2
+end
+```
 
 Lastly, wrap the things you want to be drawn with the effect inside a function:
 
-    function love.draw()
-        effect(function()
-          love.graphics.rectangle("fill", 300,200, 200,200)
-        end)
-    end
+```lua
+function love.draw()
+    effect(function()
+      love.graphics.rectangle("fill", 300,200, 200,200)
+    end)
+end
+```
 
 When you package your game for release, you might want consider deleting the
 (hidden) `.git` folder in the moonshine directory.
@@ -54,12 +60,16 @@ top of the filmgrain.
 
 Chains are created using the `moonshine.chain` function:
 
-    chain = moonshine.chain(effect)
+```lua
+chain = moonshine.chain(effect)
+```
 
 For convenience, `moonshine(effect)` is an alias to `moonshine.chain(effect)`.
 You can add new effects to a chain using
 
-    chain = chain.chain(another_effect)
+```lua
+chain = chain.chain(another_effect)
+```
 
 or using `chain.next()`, which is an alias to `chain.chain()`.
 As the function returns the chain, you can specify your whole chain in one go,
@@ -70,29 +80,37 @@ as shown in the example above.
 The effects that come bundled with moonshine (see [List of effects](#list-of-effects))
 are accessed by `chain.effects.<effect-name>`, e.g.,
 
-    moonshine.effects.glow
+```lua
+moonshine.effects.glow
+```
 
 Most effects are parametrized to change how they look. In the example above,
 the size of the grains was set to 2 pixels (the default is 1 pixel).
 Effect parameters are set by first specifying the name of the effect and then
 the name of the parameter:
 
-    chain.<effect>.<parameter> = <value>
+```lua
+chain.<effect>.<parameter> = <value>
+```
 
 For example, if `chain` contained the `glow` and `crt` effects, you can set the
 glow `strength` parameter and crt `distortionFactor` parameter as such:
 
-    chain.glow.strength = 10
-    chain.crt.distortionFactor = {1.06, 1.065}
+```lua
+chain.glow.strength = 10
+chain.crt.distortionFactor = {1.06, 1.065}
+```
 
 Because you likely initialize a bunch of parameters at once, you can set all
 parameters with the special key `parameters` (or `params` or `settings`). This
 is equivalent to the above:
 
-    chain.parameters = {
-      glow = {strenght = 10},
-      crt = {distortionFactor = {1.06, 1.065},
-    }
+```lua
+chain.parameters = {
+  glow = {strenght = 10},
+  crt = {distortionFactor = {1.06, 1.065},
+}
+```
 
 Note that this will only set the parameters specified in the table. The crt
 parameter `feather`, for example, will be left untouched.
@@ -102,17 +120,21 @@ parameter `feather`, for example, will be left untouched.
 Creating effects and setting parameters is fine, but not very useful on its
 own. You also need to apply it to something. This is done using `chain.draw()`:
 
-    chain.draw(func, ...)
+```lua
+chain.draw(func, ...)
+```
 
 This will apply the effect to everything that is drawn inside `func(...)`.
 Everything that is drawn outside of `func(...)` will not be affected. For
 example,
 
-    love.graphics.draw(img1, 0,0)
-    chain.draw(function()
-      love.graphics.draw(img2, 200,0)
-    end)
-    love.graphics.draw(img3, 400,0)
+```lua
+love.graphics.draw(img1, 0,0)
+chain.draw(function()
+  love.graphics.draw(img2, 200,0)
+end)
+love.graphics.draw(img3, 400,0)
+```
 
 will apply the effect to `img2`, but not to `img1` and `img3`. Note that some
 effects (like filmgrain) draw on the whole screen. So if in this example `chain`
@@ -158,8 +180,11 @@ Currently, moonshine contains the following effects (in alphabetical order):
 
 
 <a name="effect-boxblur"></a>
+### boxblur
 
-    moonshine.effects.boxblur
+```lua
+moonshine.effects.boxblur
+```
 
 **Parameters:**
 
@@ -171,8 +196,11 @@ radius_y | number | 3
 
 
 <a name="effect-chromasep"></a>
+### chromasep
 
-    moonshine.effects.chromasep
+```lua
+moonshine.effects.chromasep
+```
 
 **Parameters:**
 
@@ -183,8 +211,11 @@ radius | number | 0
 
 
 <a name="effect-colorgradesimple"></a>
+### colorgradesimple
 
-    moonshine.effects.colorgradesimple
+```lua
+moonshine.effects.colorgradesimple
+```
 
 **Parameters:**
 
@@ -194,8 +225,11 @@ factors | table of numbers | {1,1,1}
 
 
 <a name="effect-crt"></a>
+### crt
 
-    moonshine.effects.crt
+```lua
+moonshine.effects.crt
+```
 
 **Parameters:**
 
@@ -209,8 +243,11 @@ feather | number | 0.02
 
 
 <a name="effect-desaturate"></a>
+### desaturate
 
-    moonshine.effects.desaturate
+```lua
+moonshine.effects.desaturate
+```
 
 **Parameters:**
 
@@ -221,8 +258,11 @@ strength | number between 0 and 1 | 0.5
 
 
 <a name="effect-dmg"></a>
+### dmg
 
-    moonshine.effects.dmg
+```lua
+moonshine.effects.dmg
+```
 
 Name | Type | Default
 -----|------|--------
@@ -243,8 +283,11 @@ where `R`, `G`, and `B` are numbers between `0` and `255`.
 
 
 <a name="effect-fastgaussianblur"></a>
+### fastgaussianblur
 
-    moonshine.effects.fastgaussianblur
+```lua
+moonshine.effects.fastgaussianblur
+```
 
 **Parameters:**
 
@@ -256,8 +299,11 @@ sigma | number | -1
 
 
 <a name="effect-filmgrain"></a>
+### filmgrain
 
-    moonshine.effects.filmgrain
+```lua
+moonshine.effects.filmgrain
+```
 
 **Parameters:**
 
@@ -268,8 +314,11 @@ size | number | 1
 
 
 <a name="effect-gaussianblur"></a>
+### gaussianblur
 
-    moonshine.effects.gaussianblur
+```lua
+moonshine.effects.gaussianblur
+```
 
 **Parameters:**
 
@@ -279,8 +328,11 @@ sigma | number | 1 | (amount of blur)
 
 
 <a name="effect-glow"></a>
+### glow
 
-    moonshine.effects.glow
+```lua
+moonshine.effects.glow
+```
 
 **Parameters:**
 
@@ -291,8 +343,11 @@ strength | number >= 0 | 5
 
 
 <a name="effect-godsray"></a>
+### godsray
 
-    moonshine.effects.godsray
+```lua
+moonshine.effects.godsray
+```
 
 **Parameters:**
 
@@ -309,8 +364,11 @@ samples | number >= 1 | 70
 
 
 <a name="effect-pixelate"></a>
+### pixelate
 
-    moonshine.effects.pixelate
+```lua
+moonshine.effects.pixelate
+```
 
 **Parameters:**
 
@@ -321,8 +379,11 @@ feedback | number between 0 and 1 | 0
 
 
 <a name="effect-posterize"></a>
+### posterize
 
-    moonshine.effects.posterize
+```lua
+moonshine.effects.posterize
+```
 
 **Parameters:**
 
@@ -332,8 +393,11 @@ num_bands | number >= 1 | 3
 
 
 <a name="effect-scanlines"></a>
+### scanlines
 
-    moonshine.effects.scanlines
+```lua
+moonshine.effects.scanlines
+```
 
 **Parameters:**
 
@@ -348,8 +412,11 @@ color | color / table of numbers | {0,0,0}
 
 
 <a name="effect-sketch"></a>
+### sketch
 
-    moonshine.effects.sketch
+```lua
+moonshine.effects.sketch
+```
 
 **Parameters:**
 
@@ -360,8 +427,11 @@ center | table of numbers | {0,0}
 
 
 <a name="effect-vignette"></a>
+### vignette
 
-    moonshine.effects.vignette
+```lua
+moonshine.effects.vignette
+```
 
 **Parameters:**
 
@@ -392,7 +462,9 @@ effect, which uses the `shader`, `setters` and `defaults` fields.
 Moonshine uses double buffering to draw the effects. A function to swap and
 access the buffers is provided to the `draw(buffer)` function of your effect:
 
-    front, back = buffer() -- swaps front and back buffer and returns both
+```lua
+front, back = buffer() -- swaps front and back buffer and returns both
+```
 
 You don't have to care about canvases or restoring defaults, moonshine handles
 all that for you.
