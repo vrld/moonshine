@@ -97,6 +97,9 @@ return function(moonshine)
   end
 
   local setters = {}
+
+  -- Number of effective samples to take per pass. e.g. 3-tap is the current pixel and the neighbors each side.
+  -- More taps = larger blur, but slower.
   setters.taps = function(v)
     assert(tonumber(v) >= 3, "Invalid value for `taps': Must be >= 3")
     assert(tonumber(v)%2 == 1, "Invalid value for `taps': Must be odd")
@@ -104,17 +107,24 @@ return function(moonshine)
     shader = build_shader(taps, offset, offset_type, sigma)
   end
 
+  -- Offset of each tap.
+  -- For highest quality this should be <=1 but if the image has low entropy we
+  -- can approximate the blur with a number > 1 and less taps, for better performance.
   setters.offset =  function(v)
     offset = tonumber(v) or 0
     shader = build_shader(taps, offset, offset_type, sigma)
   end
 
+  -- Offset type, either 'weighted' or 'center'.
+  -- 'weighted' gives a more accurate gaussian decay but can introduce modulation
+  -- for high frequency details.
   setters.offset_type = function(v)
     assert(v == 'weighted' or v == 'center', "Invalid value for 'offset_type': Must be 'weighted' or 'center'.")
     offset_type = v
     shader = build_shader(taps, offset, offset_type, sigma)
   end
 
+  -- Sigma value for gaussian distribution. You don't normally need to set this.
   setters.sigma =  function(v)
     sigma = tonumber(v) or -1
     shader = build_shader(taps, offset, offset_type, sigma)
