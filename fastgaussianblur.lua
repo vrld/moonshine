@@ -28,9 +28,10 @@ SOFTWARE.
 -- this allows us to do ~1/2 the number of pixel lookups.
 
 -- unroll convolution loop
-local function build_shader(taps, offset, sigma)
+local function build_shader(taps, offset, offset_type, sigma)
   taps = math.floor(taps)
   sigma = sigma >= 1 and sigma or (taps - 1) * offset / 6
+  sigma = math.max(sigma, 1)
 
   local steps = (taps + 1) / 2
 
@@ -38,12 +39,11 @@ local function build_shader(taps, offset, sigma)
   local g_offsets = {}
   local g_weights = {}
   for i = 1, steps, 1 do
-    local offset = i - 1
-    g_offsets[i] = offset
+		g_offsets[i] = offset * (i - 1)
 
     -- We don't need to include the constant part of the gaussian function as we normalize later.
     -- 1 / math.sqrt(2 * sigma ^ math.pi) * math.exp(-0.5 * ((offset - 0) / sigma) ^ 2 )
-    g_weights[i] = math.exp(-0.5 * (offset - 0) ^ 2 * 1 / sigma ^ 2 )
+    g_weights[i] = math.exp(-0.5 * (g_offsets[i] - 0) ^ 2 * 1 / sigma ^ 2 )
   end
 
   -- Calculate offsets and weights for sub-pixel samples.
@@ -52,9 +52,9 @@ local function build_shader(taps, offset, sigma)
   for i = #g_weights, 2, -2 do
     local oA, oB = g_offsets[i], g_offsets[i - 1]
     local wA, wB = g_weights[i], g_weights[i - 1]
-    wB = i ~=2 and wB or wB / 2 -- On final tap the middle is getting sampled twice so half weight.
+    wB = oB == 0 and wB / 2 or wB -- On center tap the middle is getting sampled twice so half weight.
     local weight = wA + wB
-    offsets[#offsets + 1] = (oA * wA + oB * wB) / weight
+    offsets[#offsets + 1] = offset_type == 'center' and (oA + oB) / 2 or (oA * wA + oB * wB) / weight
     weights[#weights + 1] = weight
   end
 
@@ -85,8 +85,8 @@ local function build_shader(taps, offset, sigma)
 end
 
 return function(moonshine)
-  local taps, offset, sigma = 7, 1, -1
-  local shader = build_shader(taps, offset, sigma)
+  local taps, offset, offset_type, sigma = 7, 1, 'weighted', -1
+  local shader = build_shader(taps, offset, offset_type, sigma)
 
   local function draw(buffer)
     shader:send('direction', {1 / love.graphics.getWidth(), 0})
@@ -101,17 +101,23 @@ return function(moonshine)
     assert(tonumber(v) >= 3, "Invalid value for `taps': Must be >= 3")
     assert(tonumber(v)%2 == 1, "Invalid value for `taps': Must be odd")
     taps = tonumber(v)
-    shader = build_shader(taps, offset, sigma)
+    shader = build_shader(taps, offset, offset_type, sigma)
   end
 
   setters.offset =  function(v)
     offset = tonumber(v) or 0
-    shader = build_shader(taps, offset, sigma)
+    shader = build_shader(taps, offset, offset_type, sigma)
+  end
+
+  setters.offset_type = function(v)
+    assert(v == 'weighted' or v == 'center', "Invalid value for 'offset_type': Must be 'weighted' or 'center'.")
+    offset_type = v
+    shader = build_shader(taps, offset, offset_type, sigma)
   end
 
   setters.sigma =  function(v)
     sigma = tonumber(v) or -1
-    shader = build_shader(taps, offset, sigma)
+    shader = build_shader(taps, offset, offset_type, sigma)
   end
 
   return moonshine.Effect{
