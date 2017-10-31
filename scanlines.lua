@@ -17,13 +17,13 @@ PERFORMANCE OF THIS SOFTWARE.
 
 return function(moonshine)
   local shader = love.graphics.newShader[[
-    extern number frequency;
+    extern number width;
     extern number phase;
     extern number thickness;
     extern number opacity;
     extern vec3 color;
     vec4 effect(vec4 c, Image tex, vec2 tc, vec2 _) {
-      number v = .5*(cos(tc.y * 3.14159 * frequency + phase) + 1.);
+      number v = .5*(sin(tc.y * 3.14159 / width * love_ScreenSize.y + phase) + 1.);
       c = Texel(tex,tc);
       //c.rgb = mix(color, c.rgb, mix(1, pow(v, thickness), opacity));
       c.rgb -= (color - c.rgb) * (pow(v,thickness) - 1.0) * opacity;
@@ -33,7 +33,6 @@ return function(moonshine)
 
   local defaults = {
     width = 2,
-    frequency = love.graphics.getHeight() / 2,
     phase = 0,
     thickness = 1,
     opacity = 1,
@@ -42,10 +41,7 @@ return function(moonshine)
 
   local setters = {}
   setters.width = function(v)
-    shader:send("frequency", love.graphics.getHeight() / (tonumber(v) or defaults.width))
-  end
-  setters.frequency = function(v)
-    shader:send("frequency", tonumber(v) or defaults.frequency)
+    shader:send("width", tonumber(v) or defaults.width)
   end
   setters.phase = function(v)
     shader:send("phase", tonumber(v) or defaults.phase)
