@@ -46,8 +46,10 @@ return function(moonshine)
     extern number samples;
 
     vec4 effect(vec4 color, Image tex, vec2 uv, vec2 px) {
+      color = Texel(tex, uv);
+
       vec2 offset = (uv - light_position) * density / samples;
-      number illumination = 1.0;
+      number illumination = decay;
       vec4 c = vec4(.0, .0, .0, 1.0);
 
       for (int i = 0; i < samples; ++i) {
@@ -56,7 +58,7 @@ return function(moonshine)
         illumination *= decay;
       }
 
-      return vec4(c.rgb * exposure, 1.0);
+      return vec4(c.rgb * exposure + color.rgb, color.a);
     }]]
 
 
@@ -84,13 +86,13 @@ return function(moonshine)
   end
 
   setters.samples = function(v)
-    shader:send("samples", math.max(1,tonumber(value) or 1))
+    shader:send("samples", math.max(1,tonumber(v) or 1))
   end
 
   local defaults = {
-    exposure = 0.5,
+    exposure = 0.25,
     decay = 0.95,
-    density = 0.05,
+    density = 0.15,
     weight = 0.5,
     light_position = {0.5,0.5},
     samples = 70
