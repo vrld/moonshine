@@ -53,7 +53,7 @@ return function(moonshine)
   setters.y = function(v) setters.distortionFactor{distortionFactor[1], v} end
 
   setters.scaleFactor = function(v)
-    if type(v) == "table" and #l == 2 then
+    if type(v) == "table" and #v == 2 then
       shader:send("scaleFactor", v)
     elseif type(v) == "number" then
       shader:send("scaleFactor", {v,v})
