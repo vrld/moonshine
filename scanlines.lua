@@ -32,8 +32,8 @@ return function(moonshine)
 
 
   local defaults = {
-    width = 1,
-    frequency = love.graphics.getHeight() / 1,
+    width = 2,
+    frequency = love.graphics.getHeight() / 2,
     phase = 0,
     thickness = 1,
     opacity = 1,
