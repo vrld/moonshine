@@ -51,7 +51,7 @@ return function(moonshine)
     shader = shader,
     setters = {
       num_bands = function(v)
-        shader:send("num_bands", math.max(1, tonumber(value) or 1))
+        shader:send("num_bands", math.max(1, tonumber(v) or 1))
       end
     },
     defaults = {num_bands = 3}
