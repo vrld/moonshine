@@ -108,7 +108,7 @@ is equivalent to the above:
 ```lua
 chain.parameters = {
   glow = {strenght = 10},
-  crt = {distortionFactor = {1.06, 1.065},
+  crt = {distortionFactor = {1.06, 1.065}},
 }
 ```
 
