@@ -52,7 +52,7 @@ moonshine.chain = function(effect)
     local color = {love.graphics.getColor()}
 
     -- draw scene to front buffer
-    love.graphics.setCanvas(buffer())
+    love.graphics.setCanvas((buffer())) -- parens are needed: take only front buffer
     love.graphics.clear()
     func(...)
 
