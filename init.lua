@@ -49,18 +49,18 @@ moonshine.chain = function(effect)
     -- save state
     local canvas = love.graphics.getCanvas()
     local shader = love.graphics.getShader()
-    local color = {love.graphics.getColor()}
+    local fg_r, fg_g, fg_b, fg_a = love.graphics.getColor()
 
     -- draw scene to front buffer
     love.graphics.setCanvas((buffer())) -- parens are needed: take only front buffer
-    love.graphics.clear()
+    love.graphics.clear(love.graphics.getBackgroundColor())
     func(...)
 
     -- save more state
     local blendmode = love.graphics.getBlendMode()
 
     -- process all shaders
-    love.graphics.setColor(color)
+    love.graphics.setColor(fg_r, fg_g, fg_b, fg_a)
     love.graphics.setBlendMode("alpha", "premultiplied")
     for _,e in ipairs(chain) do
       (e.draw or moonshine.draw_shader)(buffer, e.shader)
