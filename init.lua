@@ -36,8 +36,14 @@ moonshine.draw_shader = function(buffer, shader)
   love.graphics.draw(back)
 end
 
-moonshine.chain = function(effect)
-  local front, back = love.graphics.newCanvas(), love.graphics.newCanvas()
+moonshine.chain = function(w,h,effect)
+  -- called as moonshine.chain(effect)'
+  if h == nil then
+    effect, w,h = w, love.window.getMode()
+  end
+  assert(effect ~= nil, "No effect")
+
+  local front, back = love.graphics.newCanvas(w,h), love.graphics.newCanvas(w,h)
   local buffer = function()
     back, front = front, back
     return front, back
@@ -45,6 +51,11 @@ moonshine.chain = function(effect)
 
   local disabled = {} -- set of disabled effects
   local chain = {}
+  chain.resize = function(w, h)
+    front, back = love.graphics.newCanvas(w,h), love.graphics.newCanvas(w,h)
+    return chain
+  end
+
   chain.draw = function(func, ...)
     -- save state
     local canvas = love.graphics.getCanvas()

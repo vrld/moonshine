@@ -163,6 +163,20 @@ would first disable the boxblur and filmgrain effect, and then enable the
 filmgrain again.
 Note that the effects are still in the chain, they are only not drawn.
 
+### Canvas size
+
+You can change the size of the internal canvas, for example when the window was
+resized, by calling `chain.resize(width, height)`.
+Do this anytime you want, but best not during `chain.draw()`.
+
+You can also specify the initial canvas size by starting the chain like this:
+
+```lua
+effect = moonshine(400,300, moonshine.effects.vignette)
+```
+
+That is, you specify the width and height before the first effect in the chain.
+
 ### Is this efficient?
 
 Of course, using moonshine is not as efficient as writing your own shader that
