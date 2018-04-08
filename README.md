@@ -435,8 +435,8 @@ moonshine.effects.scanlines
 
 Name | Type | Default
 -----|------|--------
-width | number | 1
-frequency | number | screen-height / 1
+width | number | 2
+frequency | number | screen-height
 phase | number | 0
 thickness | number | 1
 opacity | number | 1

@@ -43,6 +43,9 @@ return function(moonshine)
   setters.width = function(v)
     shader:send("width", tonumber(v) or defaults.width)
   end
+  setters.frequency = function(v)
+    shader:send("width", love.graphics.getHeight()/(tonumber(v) or love.graphics.getHeight()))
+  end
   setters.phase = function(v)
     shader:send("phase", tonumber(v) or defaults.phase)
   end
