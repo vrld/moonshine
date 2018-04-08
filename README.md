@@ -145,6 +145,24 @@ will be left untouched.
 Similar to chain creation, `chain(func, ...)` is an alias to the more verbose
 `chain.draw(func, ...)`.
 
+### Temporarily disabling effects
+
+You can disable effects in a chain by using `chain.disable(names...)` and
+`chain.enable(names...)`.
+For example,
+
+```lua
+effect = moonshine(moonshine.effects.boxblur)
+                  .chain(moonshine.effects.filmgrain)
+                  .chain(moonshine.effects.vignette)
+effect.disable("boxblur", "filmgrain")
+effect.enable("filmgrain")
+```
+
+would first disable the boxblur and filmgrain effect, and then enable the
+filmgrain again.
+Note that the effects are still in the chain, they are only not drawn.
+
 ### Is this efficient?
 
 Of course, using moonshine is not as efficient as writing your own shader that

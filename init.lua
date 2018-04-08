@@ -43,8 +43,8 @@ moonshine.chain = function(effect)
     return front, back
   end
 
+  local disabled = {} -- set of disabled effects
   local chain = {}
-
   chain.draw = function(func, ...)
     -- save state
     local canvas = love.graphics.getCanvas()
@@ -63,7 +63,9 @@ moonshine.chain = function(effect)
     love.graphics.setColor(fg_r, fg_g, fg_b, fg_a)
     love.graphics.setBlendMode("alpha", "premultiplied")
     for _,e in ipairs(chain) do
-      (e.draw or moonshine.draw_shader)(buffer, e.shader)
+      if not disabled[e.name] then
+        (e.draw or moonshine.draw_shader)(buffer, e.shader)
+      end
     end
 
     -- present result
@@ -86,6 +88,20 @@ moonshine.chain = function(effect)
     return chain
   end
   chain.chain = chain.next
+
+  chain.disable = function(name, ...)
+    if name then
+      disabled[name] = name
+      return chain.disable(...)
+    end
+  end
+
+  chain.enable = function(name, ...)
+    if name then
+      disabled[name] = nil
+      return chain.enable(...)
+    end
+  end
 
   setmetatable(chain, {
     __call = function(_, ...) return chain.draw(...) end,
