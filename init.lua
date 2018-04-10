@@ -27,7 +27,7 @@ local BASE = ...
 local moonshine = {}
 
 moonshine.draw_shader = function(buffer, shader)
-  front, back = buffer()
+  local front, back = buffer()
   love.graphics.setCanvas(front)
   love.graphics.clear()
   if shader ~= love.graphics.getShader() then
