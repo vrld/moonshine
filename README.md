@@ -8,6 +8,7 @@ Chainable post-processing shaders for LÖVE.
 * [General usage](#general-usage)
 * [List of effects](#list-of-effects)
 * [Writing effects](#writing-effects)
+* [License](#license)
 
 <a name="getting-started"></a>
 ## Getting started
@@ -479,8 +480,6 @@ color | color / table of numbers | {0,0,0}
 <a name="writing-effects"></a>
 ## Writing effects
 
-**Under construction**
-
 An effect is essentially a function that returns a `moonshine.Effect{}`, which
 must specify at least a `name` and a `shader` or a `draw` function.
 
@@ -511,3 +510,57 @@ If for some reason you need more than two buffer, you are more or less on your
 own. You can do everything, but make sure that the blend mode and the order of
 back and front buffer is the same before and after your custom `draw` function.
 The `glow` effect gives an example of a more complicated `draw` function.
+
+
+<a name="license"></a>
+## License
+
+See [here](https://github.com/vrld/moonshine/graphs/contributors) for a list of
+contributors.
+
+The main library can freely be used under the following conditions:
+
+    The MIT License (MIT)
+
+    Copyright (c) 2017 Matthias Richter
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+Most of the effects are public domain (see comments inside the files):
+
+* boxblur.lua
+* chromasep.lua
+* colorgradesimple.lua
+* crt.lua
+* desaturate.lua
+* filmgrain.lua
+* gaussianblur.lua
+* glow.lua
+* pixelate.lua
+* posterize.lua
+* scanlines.lua
+* vignette.lua
+
+These effects are MIT-licensed with multiple authors:
+
+* dmg.lua: Joseph Patoprsty, Matthias Richter
+* fastgaussianblur.lua: Tim Moore, Matthias Richter
+* godsray.lua: Joseph Patoprsty, Matthias Richter. Based on work by ioxu, Fabien Sanglard, Kenny Mitchell and Jason Mitchell.
+* sketch.lua: Martin Felis, Matthias Richter
+
