@@ -16,7 +16,7 @@ PERFORMANCE OF THIS SOFTWARE.
 ]]--
 
 return function(moonshine)
-  -- Barrel distortion adapted from Daniel Oaks (see commit cef01b67d)
+  -- Barrel distortion adapted from Daniel Oaks (see commit cef01b67fd)
   -- Added feather to mask out outside of distorted texture
   local distortionFactor
   local shader = love.graphics.newShader[[
