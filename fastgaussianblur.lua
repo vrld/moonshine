@@ -64,7 +64,7 @@ local function build_shader(taps, offset, offset_type, sigma)
 
   local norm = 0
   if #g_weights % 2 == 0 then
-    code[#code+1] =  'vec4 c = vec4( 0.0f );'
+    code[#code+1] =  'vec4 c = vec4( 0.0 );'
   else
     local weight = g_weights[1]
     norm = norm + weight

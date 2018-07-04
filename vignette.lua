@@ -27,7 +27,7 @@ return function(moonshine)
       number aspect = love_ScreenSize.x / love_ScreenSize.y;
       aspect = max(aspect, 1.0 / aspect); // use different aspect when in portrait mode
       number v = 1.0 - smoothstep(radius, radius-softness,
-                                  length((tc - vec2(0.5f)) * aspect));
+                                  length((tc - vec2(0.5)) * aspect));
       return mix(Texel(tex, tc), color, v*opacity);
     }]]
 
