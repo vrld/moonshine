@@ -475,6 +475,20 @@ softness | number > 0 | 0.5
 opacity | number > 0 | 0.5
 color | color / table of numbers | {0,0,0}
 
+<a name="effect-fog"></a>
+### fog
+
+```lua
+moonshine.effects.fog
+```
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+fog_color | color/table of numbers | {0.35, 0.48, 0.95}
+octaves | number > 0 | 4
+speed | vec2/table of numbers | {0.5, 0.5}
 
 
 <a name="writing-effects"></a>
@@ -563,4 +577,4 @@ These effects are MIT-licensed with multiple authors:
 * fastgaussianblur.lua: Tim Moore, Matthias Richter
 * godsray.lua: Joseph Patoprsty, Matthias Richter. Based on work by ioxu, Fabien Sanglard, Kenny Mitchell and Jason Mitchell.
 * sketch.lua: Martin Felis, Matthias Richter
-
+* fog.lua: Brandon Blanker Lim-it. Based on work by Gonkee.
