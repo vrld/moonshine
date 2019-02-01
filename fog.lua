@@ -69,10 +69,9 @@ return function(moonshine)
 		shader:send("octaves", octaves)
 	end
 
-	setters.speed = function(speed_x, speed_y)
-		assert(type(speed_x) == "number", "Passed argument to speed must be a number (float)")
-		assert(type(speed_y) == "number", "Passed argument to speed must be a number (float)")
-		speed = {speed_x, speed_y}
+	setters.speed = function(t)
+		assert(type(t) == "tabe", "Passed argument to speed must be a table containing 2 values")
+		speed = t
 		shader:send("speed", speed)
 	end
 
@@ -83,7 +82,7 @@ return function(moonshine)
 	}
 
 	return moonshine.Effect({
-		name = "Fog",
+		name = "fog",
 		shader = shader,
 		setters = setters,
 		defaults = defaults,
