@@ -103,7 +103,7 @@ return function(moonshine)
 	end
 
 	setters.speed = function(t)
-		assert(type(t) == "tabe", "Passed argument to speed must be a table containing 2 values")
+		assert(type(t) == "table", "Passed argument to speed must be a table containing 2 values")
 		speed = t
 		shader:send("speed", speed)
 	end
