@@ -9,6 +9,7 @@ return function(moonshine)
 	local fog_color
 	local octaves
 	local speed
+	local time
 
 	local shader = love.graphics.newShader([[
 		extern vec3 fog_color = vec3(0.35, 0.48, 0.95);
@@ -73,6 +74,12 @@ return function(moonshine)
 		assert(type(t) == "tabe", "Passed argument to speed must be a table containing 2 values")
 		speed = t
 		shader:send("speed", speed)
+	end
+
+	setters.time = function(n)
+		assert(type(n) == "number", "Passed argument to time must be a number")
+		time = n
+		shader:send("time", time)
 	end
 
 	local defaults = {
