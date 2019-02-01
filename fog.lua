@@ -58,7 +58,7 @@ return function(moonshine)
 	local setters = {}
 
 	setters.fog_color = function(t)
-		assert(type(v) == "table", "Passed argument to fog_color must be a table containing 3 color values")
+		assert(type(t) == "table", "Passed argument to fog_color must be a table containing 3 color values")
 		fog_color = t
 		shader:send("fog_color", fog_color)
 	end
