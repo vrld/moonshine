@@ -5,6 +5,38 @@ Originally for Godot Engine by Gonkee https://www.youtube.com/watch?v=QEaTsz_0o4
 Translated for löve by Brandon Blanker Lim-it @flamendless
 ]]--
 
+--[[
+SAMPLE USAGE:
+local moonshine = require("moonshine")
+local effect
+
+local image, bg
+local image_data
+local shader_fog
+local time = 0
+
+function love.load()
+	image_data = love.image.newImageData(love.graphics.getWidth(), love.graphics.getHeight())
+	image = love.graphics.newImage(image_data)
+	bg = love.graphics.newImage("bg.png")
+	effect = moonshine(moonshine.effects.fog)
+	effect.fog.fog_color = {0.1, 0.0, 0.0}
+	effect.fog.speed = {0.2, 0.9}
+end
+
+function love.update(dt)
+	time = time + dt
+	effect.fog.time = time
+end
+
+function love.draw()
+	love.graphics.draw(bg)
+	effect(function()
+		love.graphics.draw(image)
+	end)
+end
+]]
+
 return function(moonshine)
 	local fog_color
 	local octaves
