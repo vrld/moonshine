@@ -63,7 +63,7 @@ moonshine.chain = function(w,h,effect)
     local fg_r, fg_g, fg_b, fg_a = love.graphics.getColor()
 
     -- draw scene to front buffer
-    love.graphics.setCanvas((buffer())) -- parens are needed: take only front buffer
+    love.graphics.setCanvas{(buffer()), stencil=true} -- parens are needed: take only front buffer
     love.graphics.clear(love.graphics.getBackgroundColor())
     func(...)
 
