@@ -210,6 +210,7 @@ Currently, moonshine contains the following effects (in alphabetical order):
 * [scanlines](#effect-scanlines): horizontal lines
 * [sketch](#effect-sketch): simulate pencil drawings
 * [vignette](#effect-vignette): shadow in the corners
+* [fog](#effect-fog): animated 2D Fog (procedural)
 
 
 <a name="effect-boxblur"></a>
