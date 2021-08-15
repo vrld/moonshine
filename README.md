@@ -374,7 +374,14 @@ Name | Type | Default
 -----|------|--------
 min_luma | number between 0 and 1 | 0.7
 strength | number >= 0 | 5
+x | number >= 0 | 0
+y | number >= 0 | y
+size | table{w, h} | 1280, 640
 
+`x` and `y` are for translating the canvas used by the shader.
+`size` is used for the canvas size. Previously moonshine uses the size of the
+whole window, this can lead to performance slowdown especially in very big
+window size. Make this smaller accordingly to your game for performance boost.
 
 <a name="effect-godsray"></a>
 ### godsray
