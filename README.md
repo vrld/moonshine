@@ -39,9 +39,11 @@ Lastly, wrap the things you want to be drawn with the effect inside a function:
 
 ```lua
 function love.draw()
+    local x, y = 0, 0
     effect(function()
       love.graphics.rectangle("fill", 300,200, 200,200)
-    end)
+    end, x, y) -- allows passing of arguments which can be used in effect's draw call
+    -- for now, check glow.lua how it's used.
 end
 ```
 
