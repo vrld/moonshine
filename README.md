@@ -202,6 +202,7 @@ Currently, moonshine contains the following effects (in alphabetical order):
 * [dmg](#effect-dmg): Gameboy and other four color palettes
 * [fastgaussianblur](#effect-fastgaussianblur): faster Gaussian blurring
 * [filmgrain](#effect-filmgrain): image noise
+* [fog](#effect-fog): Procedural fog
 * [gaussianblur](#effect-gaussianblur): Gaussian blurring
 * [glow](#effect-glow): aka (light bloom
 * [godsray](#effect-godsray): aka light scattering
