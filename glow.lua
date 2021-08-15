@@ -37,8 +37,6 @@ local function make_blur_shader(sigma)
 
   code[#code+1] = ("return c * vec4(%f) * color;}"):format(1 / norm)
 
-  print(1)
-
   return love.graphics.newShader(table.concat(code))
 end
 
@@ -56,8 +54,6 @@ return function(moonshine)
   local h = 720/4
   local scene = love.graphics.newCanvas(w, h)
 
-  local x = 0
-  local y = 0
   local dir = {1/w, 0}
   local strength = 5
 
@@ -68,12 +64,6 @@ return function(moonshine)
   end
   setters.min_luma = function(v)
     threshold:send("min_luma", math.max(0, math.min(1, tonumber(v) or 0.5)))
-  end
-  setters.x = function(v)
-      x = v
-  end
-  setters.y = function(v)
-      y = v
   end
   setters.dir = function(v)
       dir[1] = v[1]/w
@@ -86,7 +76,7 @@ return function(moonshine)
       scene = love.graphics.newCanvas(w, h)
   end
 
-  local draw = function(buffer)
+  local draw = function(buffer, shader, tx, ty)
     local front, back = buffer() -- scene so far is in `back'
     scene, back = back, scene    -- save it for second draw below
 
@@ -111,7 +101,7 @@ return function(moonshine)
     love.graphics.setShader()
     love.graphics.setBlendMode("add", "premultiplied")
     love.graphics.push()
-    love.graphics.translate(x, y)
+    love.graphics.translate(tx or 0, ty or 0)
     love.graphics.draw(scene) -- original scene
 
     -- second pass of light blurring
@@ -133,8 +123,6 @@ return function(moonshine)
     defaults = {
         min_luma=.7,
         strength = 5,
-        x = 0,
-        y = 0,
         dir = {1/w, 0},
         size = {w, h},
     }
