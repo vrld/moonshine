@@ -37,6 +37,8 @@ local function make_blur_shader(sigma)
 
   code[#code+1] = ("return c * vec4(%f) * color;}"):format(1 / norm)
 
+  print(1)
+
   return love.graphics.newShader(table.concat(code))
 end
 
@@ -57,10 +59,12 @@ return function(moonshine)
   local x = 0
   local y = 0
   local dir = {1/w, 0}
+  local strength = 5
 
   local setters = {}
   setters.strength = function(v)
     blurshader = make_blur_shader(math.max(0,tonumber(v) or 1))
+    strength = v
   end
   setters.min_luma = function(v)
     threshold:send("min_luma", math.max(0, math.min(1, tonumber(v) or 0.5)))
@@ -74,6 +78,7 @@ return function(moonshine)
   setters.dir = function(v)
       dir[1] = v[1]/w
       dir[2] = v[2]/h
+      blurshader:send("direction", {dir[1], dir[2]})
   end
   setters.size = function(v)
       w = v[1]
@@ -91,7 +96,7 @@ return function(moonshine)
     love.graphics.setShader(threshold)
     love.graphics.draw(scene)
 
-    -- 2nd pass: apply blur shader in x
+    -- 2nd pass: apply blur shader in dir
     blurshader:send('direction', dir)
     love.graphics.setCanvas(back)
     love.graphics.clear()
