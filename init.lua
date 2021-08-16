@@ -75,7 +75,7 @@ moonshine.chain = function(w,h,effect)
     love.graphics.setBlendMode("alpha", "premultiplied")
     for _,e in ipairs(chain) do
       if not disabled[e.name] then
-        (e.draw or moonshine.draw_shader)(buffer, e.shader)
+        (e.draw or moonshine.draw_shader)(buffer, e.shader, ...)
       end
     end
 

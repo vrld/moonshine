@@ -39,9 +39,11 @@ Lastly, wrap the things you want to be drawn with the effect inside a function:
 
 ```lua
 function love.draw()
+    local x, y = 0, 0
     effect(function()
       love.graphics.rectangle("fill", 300,200, 200,200)
-    end)
+    end, x, y) -- allows passing of arguments which can be used in effect's draw call
+    -- for now, check glow.lua how it's used.
 end
 ```
 
@@ -202,6 +204,7 @@ Currently, moonshine contains the following effects (in alphabetical order):
 * [dmg](#effect-dmg): Gameboy and other four color palettes
 * [fastgaussianblur](#effect-fastgaussianblur): faster Gaussian blurring
 * [filmgrain](#effect-filmgrain): image noise
+* [fog](#effect-fog): Procedural fog
 * [gaussianblur](#effect-gaussianblur): Gaussian blurring
 * [glow](#effect-glow): aka (light bloom
 * [godsray](#effect-godsray): aka light scattering
@@ -373,7 +376,11 @@ Name | Type | Default
 -----|------|--------
 min_luma | number between 0 and 1 | 0.7
 strength | number >= 0 | 5
+size | table{w, h} | 1280, 640
 
+`size` is used for the canvas size. Previously moonshine uses the size of the
+whole window, this can lead to performance slowdown especially in very big
+window size. Make this smaller accordingly to your game for performance boost.
 
 <a name="effect-godsray"></a>
 ### godsray

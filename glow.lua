@@ -50,16 +50,33 @@ return function(moonshine)
       return c * step(min_luma, luma) * color;
     }]]
 
+  local w = 1280/4
+  local h = 720/4
+  local scene = love.graphics.newCanvas(w, h)
+
+  local dir = {1/w, 0}
+  local strength = 5
+
   local setters = {}
   setters.strength = function(v)
     blurshader = make_blur_shader(math.max(0,tonumber(v) or 1))
+    strength = v
   end
   setters.min_luma = function(v)
     threshold:send("min_luma", math.max(0, math.min(1, tonumber(v) or 0.5)))
   end
+  setters.dir = function(v)
+      dir[1] = v[1]/w
+      dir[2] = v[2]/h
+      blurshader:send("direction", {dir[1], dir[2]})
+  end
+  setters.size = function(v)
+      w = v[1]
+      h = v[2]
+      scene = love.graphics.newCanvas(w, h)
+  end
 
-  local scene = love.graphics.newCanvas()
-  local draw = function(buffer)
+  local draw = function(buffer, shader, tx, ty)
     local front, back = buffer() -- scene so far is in `back'
     scene, back = back, scene    -- save it for second draw below
 
@@ -69,8 +86,8 @@ return function(moonshine)
     love.graphics.setShader(threshold)
     love.graphics.draw(scene)
 
-    -- 2nd pass: apply blur shader in x
-    blurshader:send('direction', {1 / love.graphics.getWidth(), 0})
+    -- 2nd pass: apply blur shader in dir
+    blurshader:send('direction', dir)
     love.graphics.setCanvas(back)
     love.graphics.clear()
     love.graphics.setShader(blurshader)
@@ -83,12 +100,16 @@ return function(moonshine)
     -- original scene without blur shader
     love.graphics.setShader()
     love.graphics.setBlendMode("add", "premultiplied")
+    love.graphics.push()
+    love.graphics.translate(tx or 0, ty or 0)
     love.graphics.draw(scene) -- original scene
 
     -- second pass of light blurring
-    blurshader:send('direction', {0, 1 / love.graphics.getHeight()})
+    blurshader:send('direction', {0, 1 / h})
     love.graphics.setShader(blurshader)
+
     love.graphics.draw(back)
+    love.graphics.pop()
 
     -- restore things as they were before entering draw()
     love.graphics.setBlendMode("alpha", "premultiplied")
@@ -99,6 +120,11 @@ return function(moonshine)
     name = "glow",
     draw = draw,
     setters = setters,
-    defaults = {min_luma=.7, strength = 5}
+    defaults = {
+        min_luma=.7,
+        strength = 5,
+        dir = {1/w, 0},
+        size = {w, h},
+    }
   }
 end
