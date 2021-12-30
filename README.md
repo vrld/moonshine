@@ -8,6 +8,7 @@ Chainable post-processing shaders for LÖVE.
 * [General usage](#general-usage)
 * [List of effects](#list-of-effects)
 * [Writing effects](#writing-effects)
+* [License](#license)
 
 <a name="getting-started"></a>
 ## Getting started
@@ -107,8 +108,8 @@ is equivalent to the above:
 
 ```lua
 chain.parameters = {
-  glow = {strenght = 10},
-  crt = {distortionFactor = {1.06, 1.065},
+  glow = {strength = 10},
+  crt = {distortionFactor = {1.06, 1.065}},
 }
 ```
 
@@ -144,6 +145,38 @@ will be left untouched.
 
 Similar to chain creation, `chain(func, ...)` is an alias to the more verbose
 `chain.draw(func, ...)`.
+
+### Temporarily disabling effects
+
+You can disable effects in a chain by using `chain.disable(names...)` and
+`chain.enable(names...)`.
+For example,
+
+```lua
+effect = moonshine(moonshine.effects.boxblur)
+                  .chain(moonshine.effects.filmgrain)
+                  .chain(moonshine.effects.vignette)
+effect.disable("boxblur", "filmgrain")
+effect.enable("filmgrain")
+```
+
+would first disable the boxblur and filmgrain effect, and then enable the
+filmgrain again.
+Note that the effects are still in the chain, they are only not drawn.
+
+### Canvas size
+
+You can change the size of the internal canvas, for example when the window was
+resized, by calling `chain.resize(width, height)`.
+Do this anytime you want, but best not during `chain.draw()`.
+
+You can also specify the initial canvas size by starting the chain like this:
+
+```lua
+effect = moonshine(400,300, moonshine.effects.vignette)
+```
+
+That is, you specify the width and height before the first effect in the chain.
 
 ### Is this efficient?
 
@@ -253,7 +286,7 @@ moonshine.effects.desaturate
 
 Name | Type | Default
 -----|------|--------
-tint | color / table of numbers | {255,255,255}
+tint | color / table of numbers | {1,1,1}
 strength | number between 0 and 1 | 0.5
 
 
@@ -279,7 +312,7 @@ DMG ships with 7 palettes:
 7. `pocket`
 
 Custom palettes must be in the format `{{R,G,B}, {R,G,B}, {R,G,B}, {R,G,B}}`,
-where `R`, `G`, and `B` are numbers between `0` and `255`.
+where `R`, `G`, and `B` are numbers between `0` and `1`.
 
 
 <a name="effect-fastgaussianblur"></a>
@@ -403,8 +436,8 @@ moonshine.effects.scanlines
 
 Name | Type | Default
 -----|------|--------
-width | number | 1
-frequency | number | screen-height / 1
+width | number | 2
+frequency | number | screen-height
 phase | number | 0
 thickness | number | 1
 opacity | number | 1
@@ -442,12 +475,24 @@ softness | number > 0 | 0.5
 opacity | number > 0 | 0.5
 color | color / table of numbers | {0,0,0}
 
+<a name="effect-fog"></a>
+### fog
+
+```lua
+moonshine.effects.fog
+```
+
+**Parameters:**
+
+Name | Type | Default
+-----|------|--------
+fog_color | color/table of numbers | {0.35, 0.48, 0.95}
+octaves | number > 0 | 4
+speed | vec2/table of numbers | {0.5, 0.5}
 
 
 <a name="writing-effects"></a>
 ## Writing effects
-
-**Under construction**
 
 An effect is essentially a function that returns a `moonshine.Effect{}`, which
 must specify at least a `name` and a `shader` or a `draw` function.
@@ -479,3 +524,57 @@ If for some reason you need more than two buffer, you are more or less on your
 own. You can do everything, but make sure that the blend mode and the order of
 back and front buffer is the same before and after your custom `draw` function.
 The `glow` effect gives an example of a more complicated `draw` function.
+
+
+<a name="license"></a>
+## License
+
+See [here](https://github.com/vrld/moonshine/graphs/contributors) for a list of
+contributors.
+
+The main library can freely be used under the following conditions:
+
+    The MIT License (MIT)
+
+    Copyright (c) 2017 Matthias Richter
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+Most of the effects are public domain (see comments inside the files):
+
+* boxblur.lua
+* chromasep.lua
+* colorgradesimple.lua
+* crt.lua
+* desaturate.lua
+* filmgrain.lua
+* gaussianblur.lua
+* glow.lua
+* pixelate.lua
+* posterize.lua
+* scanlines.lua
+* vignette.lua
+
+These effects are MIT-licensed with multiple authors:
+
+* dmg.lua: Joseph Patoprsty, Matthias Richter
+* fastgaussianblur.lua: Tim Moore, Matthias Richter
+* godsray.lua: Joseph Patoprsty, Matthias Richter. Based on work by ioxu, Fabien Sanglard, Kenny Mitchell and Jason Mitchell.
+* sketch.lua: Martin Felis, Matthias Richter
+* fog.lua: Brandon Blanker Lim-it. Based on work by Gonkee.

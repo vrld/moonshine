@@ -43,6 +43,9 @@ return function(moonshine)
   setters.width = function(v)
     shader:send("width", tonumber(v) or defaults.width)
   end
+  setters.frequency = function(v)
+    shader:send("width", love.graphics.getHeight()/(tonumber(v) or love.graphics.getHeight()))
+  end
   setters.phase = function(v)
     shader:send("phase", tonumber(v) or defaults.phase)
   end
@@ -54,10 +57,11 @@ return function(moonshine)
   end
   setters.color = function(c)
     assert(type(c) == "table" and #c == 3, "Invalid value for `color'")
+    assert(c[1] <= 1, "Colors should be normalized in [0,1]")
     shader:send("color", {
-      (tonumber(c[1]) or defaults.color[0]) / 255,
-      (tonumber(c[2]) or defaults.color[1]) / 255,
-      (tonumber(c[3]) or defaults.color[2]) / 255
+      (tonumber(c[1]) or defaults.color[1]),
+      (tonumber(c[2]) or defaults.color[2]),
+      (tonumber(c[3]) or defaults.color[3])
     })
   end
 
