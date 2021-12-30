@@ -73,9 +73,9 @@ local ParamInfo = {
         return {changed = c}
       end,
       state = {
-        {value = r, min = 0, max = 255},
-        {value = g, min = 0, max = 255},
-        {value = b, min = 0, max = 255}
+        {value = r, min = 0, max = 1},
+        {value = g, min = 0, max = 1},
+        {value = b, min = 0, max = 1}
       },
       val = function(s) return {s[1].value, s[2].value, s[3].value} end
     }
@@ -126,7 +126,7 @@ local effects = {
     feather = ParamInfo.number(0.02, 0, .2)
   },
   EffectInfo'desaturate'{
-    tint = ParamInfo.RGB(255,255,255),
+    tint = ParamInfo.RGB(1,1,1),
     strength = ParamInfo.number(0.5, 0, 1)
   },
   EffectInfo'dmg'{
@@ -297,7 +297,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setColor(255,255,255)
+  love.graphics.setColor(1,1,1)
   effect(function()
     love.graphics.draw(img)
 
@@ -306,12 +306,12 @@ function love.draw()
     love.graphics.push()
     love.graphics.translate(550,200)
     love.graphics.rotate(t)
-    love.graphics.setColor(100,100,200)
+    love.graphics.setColor(0.4,0.4,0.8)
     love.graphics.rectangle('fill', -100,-50,200,100)
     love.graphics.pop()
   end)
 
-  love.graphics.setColor(0,0,0,200)
+  love.graphics.setColor(0,0,0,0.8)
   -- background for chain editor
   local h = ((show_edit_chain.checked and #effects or 0) + 1) * 22 + 8
   love.graphics.rectangle('fill', 5,5, 195, h)

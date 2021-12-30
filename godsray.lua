@@ -52,7 +52,7 @@ return function(moonshine)
       number illumination = decay;
       vec4 c = vec4(.0, .0, .0, 1.0);
 
-      for (int i = 0; i < samples; ++i) {
+      for (int i = 0; i < int(samples); ++i) {
         uv -= offset;
         c += Texel(tex, uv) * illumination * weight;
         illumination *= decay;

@@ -15,7 +15,7 @@ local function resetShader(sigma)
   local code = {[[
     extern vec2 direction;
     vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
-    { vec4 c = vec4(0.0f);
+    { vec4 c = vec4(0.0);
   ]]}
   local blur_line = "c += vec4(%f) * Texel(texture, tc + vec2(%f) * direction);"
 
