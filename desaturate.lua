@@ -29,10 +29,11 @@ return function(moonshine)
 
   setters.tint = function(c)
     assert(type(c) == "table" and #c == 3, "Invalid value for `tint'")
+    assert(c[1] <= 1, "Colors should be normalized in [0,1]")
     shader:send("tint", {
-      (tonumber(c[1]) or 0) / 255,
-      (tonumber(c[2]) or 0) / 255,
-      (tonumber(c[3]) or 0) / 255,
+      (tonumber(c[1]) or 0),
+      (tonumber(c[2]) or 0),
+      (tonumber(c[3]) or 0),
       1
     })
   end
@@ -41,7 +42,7 @@ return function(moonshine)
     shader:send("strength", math.max(0, math.min(1, tonumber(v) or 0)))
   end
 
-  local defaults = {tint = {255,255,255}, strength = 0.5}
+  local defaults = {tint = {1,1,1}, strength = 0.5}
 
   return moonshine.Effect{
     name = "desaturate",

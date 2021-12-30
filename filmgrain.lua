@@ -18,7 +18,7 @@ PERFORMANCE OF THIS SOFTWARE.
 return function(moonshine)
   local noisetex = love.image.newImageData(256,256)
   noisetex:mapPixel(function()
-    local l = love.math.random() * 255
+    local l = love.math.random()
     return l,l,l,l
   end)
   noisetex = love.graphics.newImage(noisetex)
