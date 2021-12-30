@@ -59,9 +59,9 @@ return function(moonshine)
     assert(type(c) == "table" and #c == 3, "Invalid value for `color'")
     assert(c[1] <= 1, "Colors should be normalized in [0,1]")
     shader:send("color", {
-      (tonumber(c[1]) or defaults.color[0]),
-      (tonumber(c[2]) or defaults.color[1]),
-      (tonumber(c[3]) or defaults.color[2])
+      (tonumber(c[1]) or defaults.color[1]),
+      (tonumber(c[2]) or defaults.color[2]),
+      (tonumber(c[3]) or defaults.color[3])
     })
   end
 
