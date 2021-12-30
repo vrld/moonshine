@@ -286,7 +286,7 @@ moonshine.effects.desaturate
 
 Name | Type | Default
 -----|------|--------
-tint | color / table of numbers | {255,255,255}
+tint | color / table of numbers | {1,1,1}
 strength | number between 0 and 1 | 0.5
 
 
@@ -312,7 +312,7 @@ DMG ships with 7 palettes:
 7. `pocket`
 
 Custom palettes must be in the format `{{R,G,B}, {R,G,B}, {R,G,B}, {R,G,B}}`,
-where `R`, `G`, and `B` are numbers between `0` and `255`.
+where `R`, `G`, and `B` are numbers between `0` and `1`.
 
 
 <a name="effect-fastgaussianblur"></a>

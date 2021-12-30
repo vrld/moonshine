@@ -26,7 +26,7 @@ SOFTWARE.
 return function(moonshine)
   local noisetex = love.image.newImageData(256,256)
   noisetex:mapPixel(function()
-    return love.math.random() * 255,love.math.random() * 255, 0, 0
+    return love.math.random(),love.math.random(), 0, 0
   end)
   noisetex = love.graphics.newImage(noisetex)
   noisetex:setWrap ("repeat", "repeat")
