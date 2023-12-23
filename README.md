@@ -45,7 +45,7 @@ function love.draw()
 end
 ```
 
-When you package your game for release, you might want consider deleting the
+When you package your game for release, you might want to consider deleting the
 (hidden) `.git` folder in the moonshine directory.
 
 
